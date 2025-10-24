@@ -10,19 +10,21 @@
       <!-- Группа моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
         <!-- Модели, расположенные по окружности или в линию -->
-        <a-entity gltf-model="models/kazakh_dombra.glb" position="2 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity gltf-model="models/kazakh_dombra.glb" position="-2 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity gltf-model="models/kazakh_dombra.glb" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity gltf-model="#model1" position="2 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity gltf-model="#model2" position="-2 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity gltf-model="#model3" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
         <!-- Можно добавить больше моделей, расположенных по кругу -->
       </a-entity>
 
       <!-- Камера -->
       <a-entity camera></a-entity>
 
-      <!-- Определение изображений (используйте свои файлы) -->
-      <img id="img1" src="cat1.jpg" style="display:none;">
-      <img id="img2" src="cat1.jpg" style="display:none;">
-      <img id="img3" src="cat1.jpg" style="display:none;">
+      <!-- Пути к моделям, укажите свои файлы -->
+      <a-assets>
+        <a-asset-item id="model1" src="./models/kazakh_dombra.glb"></a-asset-item>
+        <a-asset-item id="model2" src="./models/kazakh_dombra.glb"></a-asset-item>
+        <a-asset-item id="model3" src="./models/kazakh_dombra.glb"></a-asset-item>
+      </a-assets>
 
       <script>
         // Скрипт для вращения галереи мышью
