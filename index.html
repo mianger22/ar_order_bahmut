@@ -4,20 +4,28 @@
     <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs='sourceType: webcam'>
+    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
 
-      <!-- Группа моделей -->
+      <!-- Собственное расположение моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
         <!-- Модели, расположенные по окружности -->
-        <a-entity id="model1" gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity id="model2" gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity id="model3" gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity id="model1" gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5" class="clickable"></a-entity>
+        <a-entity id="model2" gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5" class="clickable"></a-entity>
+        <a-entity id="model3" gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5" class="clickable"></a-entity>
       </a-entity>
 
-      <!-- Камера -->
-      <a-entity camera></a-entity>
+      <!-- Камера + cursor для выбора -->
+      <a-entity camera position="0 1.6 0" look-controls>
+        <a-entity 
+          cursor="fuse: false; rayOrigin: mouse" 
+          raycaster="objects: .clickable" 
+          position="0 0 -1" 
+          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" 
+          material="color: yellow; shader: flat">
+        </a-entity>
+      </a-entity>
 
-      <!-- Пути к моделям -->
+      <!-- Assets для моделей -->
       <a-assets>
         <a-asset-item id="model1" src="./models/kazakh_dombra.glb"></a-asset-item>
         <a-asset-item id="model2" src="./models/kazakh_dombra.glb"></a-asset-item>
@@ -25,112 +33,74 @@
       </a-assets>
 
       <script>
-        // Переменные для вращения галереи
-        let isGalleryDragging = false;
-        let previousMouseX = 0;
-        const gallery = document.querySelector('#modelGallery');
-
-        // Переменная для выбранной модели для вращения
+        // Переменные для состояния
         let selectedModel = null;
-        let isModelDragging = false;
-        let previousModelMouseX = 0;
+        let isRotating = false;
+        let lastX = 0;
 
-        // Обработка клика по модели для выбора
-        document.querySelectorAll('a-entity[id^="model"]').forEach(model => {
-          model.addEventListener('mousedown', (e) => {
-            selectedModel = e.target;
-            isModelDragging = true;
-            previousModelMouseX = e.detail ? e.detail.intersection.point.x : e.detail.originalEvent.clientX;
-            // На мобильных — можно использовать touchstart аналогично
-          });
+        // Обработки выбора модели через клик
+        document.querySelector('a-scene').addEventListener('click', (evt) => {
+          // Ищем объект, по которому кликнули
+          const intersectedEl = evt.target.components['raycaster']?.intersectedEls[0];
+
+          if (intersectedEl && intersectedEl.classList.contains('clickable')) {
+            selectedModel = intersectedEl;
+            // Возможно, показать UI или что-то другое
+          }
         });
 
-        // Отпуск мыши/касания
+        // Представление мыши
+        document.querySelector('a-scene').addEventListener('mousedown', (evt) => {
+          if (selectedModel) {
+            isRotating = true;
+            lastX = evt.clientX;
+          }
+        });
+
         document.addEventListener('mouseup', () => {
-          isGalleryDragging = false;
-          isModelDragging = false;
+          isRotating = false;
         });
 
-        // Перемещение мыши
-        document.addEventListener('mousemove', (e) => {
-          if (isGalleryDragging) {
-            const deltaX = e.clientX - previousMouseX;
-            const rotationY = gallery.getAttribute('rotation').y;
-            gallery.setAttribute('rotation', {
-              x: 0,
-              y: rotationY + deltaX * 0.1,
-              z: 0
-            });
-            previousMouseX = e.clientX;
-          } else if (isModelDragging && selectedModel) {
-            const deltaX = e.clientX - previousModelMouseX;
-            // Вращение выбранной модели по Y
+        // Обработка движения мыши
+        document.addEventListener('mousemove', (evt) => {
+          if (isRotating && selectedModel) {
+            const deltaX = evt.clientX - lastX;
             const currentRotation = selectedModel.getAttribute('rotation');
             selectedModel.setAttribute('rotation', {
               x: currentRotation.x,
               y: currentRotation.y + deltaX * 0.5,
               z: currentRotation.z
             });
-            previousModelMouseX = e.clientX;
+            lastX = evt.clientX;
           }
         });
 
         // Для мобильных устройств
-        document.addEventListener('touchstart', (e) => {
-          if (e.touches.length === 1) {
-            // Проверка, попала ли касание на модель
-            // Для этого нужно определить цель или использовать raycaster — для простоты, сделаем базовую
-            selectedModel = null;
-            // В реальной ситуации можно добавить обработчик и определение цели касания
-            // Для примера: предположим, что пользователь касается модели (скорее всего потребуется raycaster)
-            // В этом примере можно сделать так:
-            // selectedModel = ... (зависит от точного кода)
-            isModelDragging = true;
-            previousModelMouseX = e.touches[0].clientX;
+        document.addEventListener('touchstart', (evt) => {
+          if (selectedModel && evt.touches.length === 1) {
+            isRotating = true;
+            lastX = evt.touches[0].clientX;
           }
         });
         document.addEventListener('touchend', () => {
-          isModelDragging = false;
+          isRotating = false;
         });
-        document.addEventListener('touchmove', (e) => {
-          if (isModelDragging && selectedModel && e.touches.length === 1) {
-            const deltaX = e.touches[0].clientX - previousModelMouseX;
+        document.addEventListener('touchmove', (evt) => {
+          if (isRotating && selectedModel && evt.touches.length === 1) {
+            const deltaX = evt.touches[0].clientX - lastX;
             const currentRotation = selectedModel.getAttribute('rotation');
             selectedModel.setAttribute('rotation', {
               x: currentRotation.x,
               y: currentRotation.y + deltaX * 0.5,
               z: currentRotation.z
             });
-            previousModelMouseX = e.touches[0].clientX;
+            lastX = evt.touches[0].clientX;
           }
         });
       </script>
     </a-scene>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
