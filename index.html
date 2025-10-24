@@ -1,125 +1,158 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Модели по дуге с управлением</title>
+  <!-- Аксессуары: A-Frame, AR.js -->
     <script src="ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>  </head>
-  <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs='sourceType: webcam'>
+    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+  >
+    <!-- Модели на дуге -->
+    <a-entity id="model1" geometry="primitive: box" material="color: red" position="0 0 -3" rotation="0 0 0"></a-entity>
+    <a-entity id="model2" geometry="primitive: box" material="color: green" position="0 0 -3" rotation="0 0 0"></a-entity>
+    <a-entity id="model3" geometry="primitive: box" material="color: blue" position="0 0 -3" rotation="0 0 0"></a-entity>
 
-      <!-- Группа моделей -->
-      <a-entity id="modelGallery" rotation="0 0 0">
-        <!-- Модели, расположенные по окружности или в линию -->
-        <a-entity id="model" gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5" rotation="0 0 0"></a-entity>
-        <a-entity gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <!-- Можно добавить больше моделей, расположенных по кругу -->
-      </a-entity>
+    <a-camera id="camera" position="0 0 0" cursor="raycaster" raycaster="objects: .clickable"></a-camera>
+  </a-scene>
 
-      <!-- Камера -->
-      <a-entity camera></a-entity>
+  <script>
+    const models = [
+      document.querySelector('#model1'),
+      document.querySelector('#model2'),
+      document.querySelector('#model3')
+    ];
 
-      <!-- Пути к моделям, укажите свои файлы -->
-      <a-assets>
-        <a-asset-item id="model1" src="./models/kazakh_dombra.glb"></a-asset-item>
-        <a-asset-item id="model2" src="./models/kazakh_dombra.glb"></a-asset-item>
-        <a-asset-item id="model3" src="./models/kazakh_dombra.glb"></a-asset-item>
-      </a-assets>
+    // Расположение по дуге
+    const radius = 2;
+    const angleStart = -Math.PI / 4; // -45°
+    const angleEnd = Math.PI / 4;    // +45°
+    const angleStep = (angleEnd - angleStart) / (models.length - 1);
 
-      <script>
-        // Скрипт для вращения галереи моделей мышью
-        let isDragging = false;
-        let previousMouseX = 0;
-        const gallery = document.querySelector('#modelGallery');
+    models.forEach((model, index) => {
+      const angle = angleStart + index * angleStep;
+      model.setAttribute('position', {
+        x: radius * Math.sin(angle),
+        y: 0,
+        z: -radius * Math.cos(angle)
+      });
+      model.classList.add('clickable'); // чтобы raycaster их заметил
+    });
 
-        document.addEventListener('mousedown', (e) => {
-          isDragging = true;
-          previousMouseX = e.clientX;
-        });
-        document.addEventListener('mouseup', () => {
-          isDragging = false;
-        });
-        document.addEventListener('mousemove', (e) => {
-          if (isDragging) {
-            const deltaX = e.clientX - previousMouseX;
-            const rotationY = gallery.getAttribute('rotation').y;
-            gallery.setAttribute('rotation', {
-              x: 0,
-              y: rotationY + deltaX * 0.1,
-              z: 0
-            });
-            previousMouseX = e.clientX;
-          }
-        });
+    let selectedModel = null;
+    let isDragging = false;
 
-        // Для мобильных устройств
-        document.addEventListener('touchstart', (e) => {
-          if (e.touches.length === 1) {
-            isDragging = true;
-            previousMouseX = e.touches[0].clientX;
-          }
-        });
-        document.addEventListener('touchend', () => {
-          isDragging = false;
-        });
-        document.addEventListener('touchmove', (e) => {
-          if (isDragging && e.touches.length === 1) {
-            const deltaX = e.touches[0].clientX - previousMouseX;
-            const rotationY = gallery.getAttribute('rotation').y;
-            gallery.setAttribute('rotation', {
-              x: 0,
-              y: rotationY + deltaX * 0.1,
-              z: 0
-            });
-            previousMouseX = e.touches[0].clientX;
-          }
-        });
-      
-      
-      // Часть 2 - вращение моделей
-  
-      const model = document.getElementById('model');
-      let dragging = false;
-      let lastX = 0, lastY = 0;
+    // Вспомогательные переменные
+    let previousX = 0;
 
-      document.addEventListener('mousedown', start);
-      document.addEventListener('touchstart', start);
-      window.addEventListener('mouseup', end);
-      window.addEventListener('touchend', end);
-      window.addEventListener('mousemove', move);
-      window.addEventListener('touchmove', move);
-
-      function start(e) {
-        dragging = true;
-        lastX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        lastY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+    // Функция, которая получает позицию мыши или касания
+    function getPointerEvent(evt) {
+      if (evt.touches && evt.touches.length > 0) {
+        return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+      } else {
+        return { x: evt.clientX, y: evt.clientY };
       }
-
-      function end() {
-        dragging = false;
-      }
-
-      function move(e) {
-        if (!dragging) return;
-        const x = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-        const y = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-        const deltaX = x - lastX;
-        const deltaY = y - lastY;
-        lastX = x;
-        lastY = y;
-
-        const rotation = model.getAttribute('rotation');
-        // Вращаем по горизонтали и вертикали
-        rotation.y += deltaX * 0.3;
-        rotation.x += deltaY * 0.3;
-        // Ограничение по вертикали
-        rotation.x = Math.max(-90, Math.min(90, rotation.x));
-
-        model.setAttribute('rotation', rotation);
     }
-    
-      
-      
-      
-      
-      </script>
-    </a-scene>
-  </body>
+
+    // Обработчик клика или касания для выбора модели
+    document.querySelector('a-scene').addEventListener('click', function(evt) {
+      const pointer = getPointerEvent(evt);
+      pickModel(pointer.x, pointer.y);
+    });
+
+    // Для касаний
+    document.querySelector('a-scene').addEventListener('touchstart', function(evt) {
+      const pointer = getPointerEvent(evt);
+      pickModel(pointer.x, pointer.y);
+    });
+
+    function pickModel(clientX, clientY) {
+      const sceneEl = document.querySelector('a-scene');
+      const cameraEl = document.querySelector('#camera');
+
+      // Создаем raycaster
+      const raycaster = new THREE.Raycaster();
+
+      // Получаем размеры рендеринга
+      const rect = sceneEl.canvas.getBoundingClientRect();
+
+      // Calculируем нормализованные координаты устройства
+      const normX = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const normY = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+      // Обновляем луч
+      raycaster.setFromCamera({ x: normX, y: normY }, cameraEl.object3D);
+
+      // Проверяем пересечения
+      const intersects = raycaster.intersectObjects(
+        models.map(m => m.object3D),
+        true
+      );
+
+      if (intersects.length > 0) {
+        selectedModel = intersects[0].object.el; // выбранная модель
+        // Можно начать перетягивание
+        isDragging = true;
+        // Запоминаем начальный X
+        previousX = normX;
+      }
+    }
+
+    // Обработчики движения мыши или касания
+    document.querySelector('a-scene').addEventListener('mousemove', function(evt) {
+      if (isDragging && selectedModel) {
+        handleDrag(evt);
+      }
+    });
+    document.querySelector('a-scene').addEventListener('touchmove', function(evt) {
+      if (isDragging && selectedModel) {
+        handleDrag(evt);
+      }
+    });
+
+    function handleDrag(evt) {
+      const pointer = getPointerEvent(evt);
+      const sceneEl = document.querySelector('a-scene');
+      const cameraEl = document.querySelector('#camera');
+      const rect = sceneEl.canvas.getBoundingClientRect();
+
+      const normX = ((pointer.x - rect.left) / rect.width) * 2 - 1;
+      const deltaX = normX - previousX;
+      previousX = normX;
+
+      // Вращение модели по Y
+      const rotationSpeed = 2; // настройка
+      const currentRotationY = selectedModel.getAttribute('rotation').y || 0;
+      selectedModel.setAttribute('rotation', {
+        x: selectedModel.getAttribute('rotation').x,
+        y: currentRotationY + deltaX * rotationSpeed
+      });
+
+      // Перемещение по дуге: изменение угла по X
+      const currentPos = selectedModel.object3D.position;
+      const currentAngle = Math.atan2(currentPos.x, -currentPos.z);
+      const deltaAngle = deltaX * 0.5; // регулируйте чувствительность
+      const newAngle = currentAngle + deltaAngle;
+
+      // Обновляем позицию по дуге
+      selectedModel.object3D.position.x = radius * Math.sin(newAngle);
+      selectedModel.object3D.position.z = -radius * Math.cos(newAngle);
+    }
+
+    // Конец перетаскивания
+    document.querySelector('a-scene').addEventListener('mouseup', function() {
+      isDragging = false;
+      selectedModel = null;
+    });
+    document.querySelector('a-scene').addEventListener('touchend', function() {
+      isDragging = false;
+      selectedModel = null;
+    });
+  </script>
+</body>
+</html>
