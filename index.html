@@ -1,61 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Модели по дуге с управлением</title>
-  <!-- Аксессуары: A-Frame, AR.js -->
-    <script src="./ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <script src="./ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My first AR app</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>                      
 </head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <!-- <a-entity 
-      gltf-model="./models/kazakh_dombra.glb" 
-      rotation="0 0 0" 
-      id="model">
-    </a-entity> -->
-
-    
-<a-entity 
-    geometry="primitive: sphere" 
-    material="color: yellow" 
-    scale="1 1 1"
-    position="0 0 0"
->
-</a-entity>
-                                                        
-
-    <!-- <script>
-      // добавляем обработчики для вращения
-      const model = document.querySelector('#model');
-
-      let isDragging = false;
-      let previousX = 0;
-
-      document.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        previousX = e.clientX;
-      });
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-
-      document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-          const deltaX = e.clientX - previousX;
-          previousX = e.clientX;
-
-          // меняем угол вращения модели
-          const currentRotation = model.getAttribute('rotation');
-          model.setAttribute('rotation', {
-            x: currentRotation.x,
-            y: currentRotation.y + deltaX * 0.5,
-            z: currentRotation.z
-          });
-        }
-      });
-    </script> -->
-  </a-scene>
+<body>    
+    <a-scene embedded arjs>
+        <a-marker preset="hiro">
+            <a-entity
+                position="0 0 0"
+                scale="0.5 0.5 0.5"
+                gltf-model="https://cdn.rawgit.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf"
+            ></a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
 </body>
 </html>
+                                            
