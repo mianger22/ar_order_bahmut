@@ -8,7 +8,7 @@
       <!-- Группа моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
         <!-- Модели, расположенные по окружности или в линию -->
-        <a-entity gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity id="model" gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5" rotation="0 0 0"></a-entity>
         <a-entity gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
         <a-entity gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
         <!-- Можно добавить больше моделей, расположенных по кругу -->
@@ -72,6 +72,54 @@
             previousMouseX = e.touches[0].clientX;
           }
         });
+      
+      
+      // Часть 2 - вращение моделей
+  
+      const model = document.getElementById('model');
+      let dragging = false;
+      let lastX = 0, lastY = 0;
+
+      document.addEventListener('mousedown', start);
+      document.addEventListener('touchstart', start);
+      window.addEventListener('mouseup', end);
+      window.addEventListener('touchend', end);
+      window.addEventListener('mousemove', move);
+      window.addEventListener('touchmove', move);
+
+      function start(e) {
+        dragging = true;
+        lastX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        lastY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+      }
+
+      function end() {
+        dragging = false;
+      }
+
+      function move(e) {
+        if (!dragging) return;
+        const x = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+        const y = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+        const deltaX = x - lastX;
+        const deltaY = y - lastY;
+        lastX = x;
+        lastY = y;
+
+        const rotation = model.getAttribute('rotation');
+        // Вращаем по горизонтали и вертикали
+        rotation.y += deltaX * 0.3;
+        rotation.x += deltaY * 0.3;
+        // Ограничение по вертикали
+        rotation.x = Math.max(-90, Math.min(90, rotation.x));
+
+        model.setAttribute('rotation', rotation);
+    }
+    
+      
+      
+      
+      
       </script>
     </a-scene>
   </body>
