@@ -7,20 +7,13 @@
     <a-scene embedded arjs='sourceType: webcam'>
 
       <!-- Группа галереи -->
-      <a-entity id="gallery" rotation="0 0 0">
-        <!-- Размещение изображений вокруг окружности -->
-        <a-plane src="#img1" position="-1.5 1 -3" rotation="0 0 0" width="1" height="1"></a-plane>
-        <a-plane src="#img2" position="0 1 -3" rotation="0 0 0" width="1" height="1"></a-plane>
-        <a-plane src="#img3" position="1.5 1 -3" rotation="0 0 0" width="1" height="1"></a-plane>
-
-            <a-entity
-                position="0 0 0"
-                scale="0.5 0.5 0.5"
-                gltf-model="models/kazakh_dombra.glb"
-            ></a-entity>
-        
-                                            
-        <!-- Можно разместить больше изображений -->
+      <!-- Группа моделей -->
+      <a-entity id="modelGallery" rotation="0 0 0">
+        <!-- Модели, расположенные по окружности или в линию -->
+        <a-entity gltf-model="models/kazakh_dombra.glb" position="2 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity gltf-model="models/kazakh_dombra.glb" position="-2 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity gltf-model="models/kazakh_dombra.glb" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
+        <!-- Можно добавить больше моделей, расположенных по кругу -->
       </a-entity>
 
       <!-- Камера -->
