@@ -1,12 +1,10 @@
 <html>
   <head>
     <script src="ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
-  </head>
+    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>  </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs='sourceType: webcam'>
 
-      <!-- Группа галереи -->
       <!-- Группа моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
         <!-- Модели, расположенные по окружности или в линию -->
@@ -27,46 +25,41 @@
       </a-assets>
 
       <script>
-        // Скрипт для вращения галереи мышью
+        // Скрипт для вращения галереи моделей мышью
         let isDragging = false;
         let previousMouseX = 0;
-        const gallery = document.querySelector('#gallery');
+        const gallery = document.querySelector('#modelGallery');
 
         document.addEventListener('mousedown', (e) => {
           isDragging = true;
           previousMouseX = e.clientX;
         });
-
         document.addEventListener('mouseup', () => {
           isDragging = false;
         });
-
         document.addEventListener('mousemove', (e) => {
           if (isDragging) {
             const deltaX = e.clientX - previousMouseX;
-            // Поворот по вертикальной оси (Y)
             const rotationY = gallery.getAttribute('rotation').y;
             gallery.setAttribute('rotation', {
               x: 0,
-              y: rotationY + deltaX * 0.1, // настройте чувствительность
+              y: rotationY + deltaX * 0.1,
               z: 0
             });
             previousMouseX = e.clientX;
           }
         });
 
-        // Также вы можете добавить касания для мобильных
+        // Для мобильных устройств
         document.addEventListener('touchstart', (e) => {
           if (e.touches.length === 1) {
             isDragging = true;
             previousMouseX = e.touches[0].clientX;
           }
         });
-
         document.addEventListener('touchend', () => {
           isDragging = false;
         });
-
         document.addEventListener('touchmove', (e) => {
           if (isDragging && e.touches.length === 1) {
             const deltaX = e.touches[0].clientX - previousMouseX;
@@ -80,7 +73,6 @@
           }
         });
       </script>
-
     </a-scene>
   </body>
 </html>
