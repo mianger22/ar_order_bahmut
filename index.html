@@ -1,44 +1,59 @@
 <html>
   <head>
     <script src="ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>  </head>
+    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
+  </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs='sourceType: webcam'>
 
       <!-- Группа моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
-        <!-- Модели, расположенные по окружности или в линию -->
-        <a-entity gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
-        <!-- Можно добавить больше моделей, расположенных по кругу -->
+        <!-- Модели, расположенные по окружности -->
+        <a-entity id="model1" gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity id="model2" gltf-model="#model2" position="0 0 -4" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity id="model3" gltf-model="#model3" position="-0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
       </a-entity>
 
       <!-- Камера -->
       <a-entity camera></a-entity>
 
-      <!-- Пути к моделям, укажите свои файлы -->
+      <!-- Пути к моделям -->
       <a-assets>
         <a-asset-item id="model1" src="./models/kazakh_dombra.glb"></a-asset-item>
         <a-asset-item id="model2" src="./models/kazakh_dombra.glb"></a-asset-item>
-        <a-asset-item id="model3" src="./models/kazakh_dombra.glb"></a-asset-item>
+        <a-asset-item id="model3" src="./models/kazakh_dombra.glb"></a-asset-item>      
       </a-assets>
 
       <script>
-        // Скрипт для вращения галереи моделей мышью
-        let isDragging = false;
+        // Переменные для вращения галереи
+        let isGalleryDragging = false;
         let previousMouseX = 0;
         const gallery = document.querySelector('#modelGallery');
 
-        document.addEventListener('mousedown', (e) => {
-          isDragging = true;
-          previousMouseX = e.clientX;
+        // Переменная для выбранной модели для вращения
+        let selectedModel = null;
+        let isModelDragging = false;
+        let previousModelMouseX = 0;
+
+        // Обработка клика по модели для выбора
+        document.querySelectorAll('a-entity[id^="model"]').forEach(model => {
+          model.addEventListener('mousedown', (e) => {
+            selectedModel = e.target;
+            isModelDragging = true;
+            previousModelMouseX = e.detail ? e.detail.intersection.point.x : e.detail.originalEvent.clientX;
+            // На мобильных — можно использовать touchstart аналогично
+          });
         });
+
+        // Отпуск мыши/касания
         document.addEventListener('mouseup', () => {
-          isDragging = false;
+          isGalleryDragging = false;
+          isModelDragging = false;
         });
+
+        // Перемещение мыши
         document.addEventListener('mousemove', (e) => {
-          if (isDragging) {
+          if (isGalleryDragging) {
             const deltaX = e.clientX - previousMouseX;
             const rotationY = gallery.getAttribute('rotation').y;
             gallery.setAttribute('rotation', {
@@ -47,32 +62,103 @@
               z: 0
             });
             previousMouseX = e.clientX;
+          } else if (isModelDragging && selectedModel) {
+            const deltaX = e.clientX - previousModelMouseX;
+            // Вращение выбранной модели по Y
+            const currentRotation = selectedModel.getAttribute('rotation');
+            selectedModel.setAttribute('rotation', {
+              x: currentRotation.x,
+              y: currentRotation.y + deltaX * 0.5,
+              z: currentRotation.z
+            });
+            previousModelMouseX = e.clientX;
           }
         });
 
         // Для мобильных устройств
         document.addEventListener('touchstart', (e) => {
           if (e.touches.length === 1) {
-            isDragging = true;
-            previousMouseX = e.touches[0].clientX;
+            // Проверка, попала ли касание на модель
+            // Для этого нужно определить цель или использовать raycaster — для простоты, сделаем базовую
+            selectedModel = null;
+            // В реальной ситуации можно добавить обработчик и определение цели касания
+            // Для примера: предположим, что пользователь касается модели (скорее всего потребуется raycaster)
+            // В этом примере можно сделать так:
+            // selectedModel = ... (зависит от точного кода)
+            isModelDragging = true;
+            previousModelMouseX = e.touches[0].clientX;
           }
         });
         document.addEventListener('touchend', () => {
-          isDragging = false;
+          isModelDragging = false;
         });
         document.addEventListener('touchmove', (e) => {
-          if (isDragging && e.touches.length === 1) {
-            const deltaX = e.touches[0].clientX - previousMouseX;
-            const rotationY = gallery.getAttribute('rotation').y;
-            gallery.setAttribute('rotation', {
-              x: 0,
-              y: rotationY + deltaX * 0.1,
-              z: 0
+          if (isModelDragging && selectedModel && e.touches.length === 1) {
+            const deltaX = e.touches[0].clientX - previousModelMouseX;
+            const currentRotation = selectedModel.getAttribute('rotation');
+            selectedModel.setAttribute('rotation', {
+              x: currentRotation.x,
+              y: currentRotation.y + deltaX * 0.5,
+              z: currentRotation.z
             });
-            previousMouseX = e.touches[0].clientX;
+            previousModelMouseX = e.touches[0].clientX;
           }
         });
       </script>
     </a-scene>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
