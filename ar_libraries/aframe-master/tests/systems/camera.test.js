@@ -1,6 +1,6 @@
-/* global assert, setup, suite, test, sinon */
-import * as constants from 'constants/index.js';
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test, sinon */
+var constants = require('constants/');
+var entityFactory = require('../helpers').entityFactory;
 
 var IMG_SRC = '/base/tests/assets/test.png';
 
@@ -223,7 +223,7 @@ suite('camera system', function () {
       var cameraEl2 = document.createElement('a-entity');
       var sceneEl = this.el.sceneEl;
       cameraEl2.setAttribute('camera', 'active: true');
-      setTimeout(function () {
+      process.nextTick(function () {
         sceneEl.appendChild(cameraEl2);
         // Need to setTimeout to wait for scene to remove element.
         cameraEl2.addEventListener('loaded', function () {

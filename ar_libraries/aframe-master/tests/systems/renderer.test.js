@@ -1,10 +1,13 @@
 /* global assert, suite, test, setup, teardown, THREE */
-import { sortFrontToBack, sortRenderOrderOnly, sortBackToFront } from 'systems/renderer.js';
+var {
+sortFrontToBack,
+     sortRenderOrderOnly,
+     sortBackToFront
+} = require('systems/renderer');
 
 suite('renderer', function () {
-  var sceneEl;
   function createScene () {
-    sceneEl = document.createElement('a-scene');
+    var sceneEl = this.sceneEl = document.createElement('a-scene');
     sceneEl.time = 0;
     return sceneEl;
   }
@@ -18,6 +21,7 @@ suite('renderer', function () {
       var rendererSystem = sceneEl.getAttribute('renderer');
       assert.strictEqual(rendererSystem.foveationLevel, 1);
       assert.strictEqual(rendererSystem.highRefreshRate, false);
+      assert.strictEqual(rendererSystem.physicallyCorrectLights, false);
       assert.strictEqual(rendererSystem.sortTransparentObjects, false);
       assert.strictEqual(rendererSystem.colorManagement, true);
       assert.strictEqual(rendererSystem.anisotropy, 1);
@@ -27,6 +31,7 @@ suite('renderer', function () {
       assert.strictEqual(renderingEngine.outputColorSpace, THREE.SRGBColorSpace);
       assert.ok(renderingEngine.sortObjects);
       assert.strictEqual(sortFunction, sortFrontToBack);
+      assert.strictEqual(renderingEngine.useLegacyLights, true);
       assert.strictEqual(THREE.Texture.DEFAULT_ANISOTROPY, 1);
 
       done();
@@ -65,6 +70,16 @@ suite('renderer', function () {
     sceneEl.renderer.setTransparentSort = function (s) { sortFunction = s; };
     sceneEl.addEventListener('loaded', function () {
       assert.strictEqual(sortFunction, sortRenderOrderOnly);
+      done();
+    });
+    document.body.appendChild(sceneEl);
+  });
+
+  test('change renderer physicallyCorrectLights', function (done) {
+    var sceneEl = createScene();
+    sceneEl.setAttribute('renderer', 'physicallyCorrectLights: true;');
+    sceneEl.addEventListener('loaded', function () {
+      assert.notOk(sceneEl.renderer.useLegacyLights);
       done();
     });
     document.body.appendChild(sceneEl);

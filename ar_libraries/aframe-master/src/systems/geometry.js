@@ -1,5 +1,5 @@
-import { geometries } from '../core/geometry.js';
-import { registerSystem } from '../core/system.js';
+var geometries = require('../core/geometry').geometries;
+var registerSystem = require('../core/system').registerSystem;
 
 /**
  * System for geometry component.
@@ -9,7 +9,7 @@ import { registerSystem } from '../core/system.js';
  * @member {object} cacheCount - Keep track of number of entities using a geometry to
  *         know whether to dispose on removal.
  */
-export var System = registerSystem('geometry', {
+module.exports.System = registerSystem('geometry', {
   init: function () {
     this.cache = {};
     this.cacheCount = {};
@@ -26,7 +26,7 @@ export var System = registerSystem('geometry', {
   /**
    * Attempt to retrieve from cache.
    *
-   * @returns {object|null} A geometry if it exists, else null.
+   * @returns {Object|null} A geometry if it exists, else null.
    */
   getOrCreateGeometry: function (data) {
     var cache = this.cache;

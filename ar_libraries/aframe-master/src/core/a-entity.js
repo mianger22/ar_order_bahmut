@@ -1,8 +1,8 @@
 /* global customElements */
-import * as THREE from 'three';
-import { ANode } from './a-node.js';
-import { components as COMPONENTS } from './component.js';
-import * as utils from '../utils/index.js';
+var ANode = require('./a-node').ANode;
+var COMPONENTS = require('./component').components;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 
 var debug = utils.debug('core:a-entity:debug');
 var warn = utils.debug('core:a-entity:warn');
@@ -17,12 +17,12 @@ var ONCE = {once: true};
  *
  * To be able to take components, the scene element inherits from the entity definition.
  *
- * @property {object} components - entity's currently initialized components.
- * @property {THREE.Object3D} object3D - three.js object.
- * @property {string[]} states
- * @property {boolean} isPlaying - false if dynamic behavior of the entity is paused.
+ * @member {object} components - entity's currently initialized components.
+ * @member {object} object3D - three.js object.
+ * @member {array} states.
+ * @member {boolean} isPlaying - false if dynamic behavior of the entity is paused.
  */
-export class AEntity extends ANode {
+class AEntity extends ANode {
   constructor () {
     super();
     this.components = {};
@@ -119,7 +119,7 @@ export class AEntity extends ANode {
    * Set a THREE.Object3D into the map.
    *
    * @param {string} type - Developer-set name of the type of object, will be unique per type.
-   * @param {THREE.Object3D} obj - A THREE.Object3D.
+   * @param {object} obj - A THREE.Object3D.
    */
   setObject3D (type, obj) {
     var oldObj;
@@ -247,7 +247,7 @@ export class AEntity extends ANode {
   }
 
   /**
-   * @returns {Array<Element>} Direct children that are entities.
+   * @returns {array} Direct children that are entities.
    */
   getChildEntities () {
     var children = this.children;
@@ -381,7 +381,7 @@ export class AEntity extends ANode {
    * Build data using initial components, defined attributes, mixins, and defaults.
    * Update default components before the rest.
    *
-   * @property {function} getExtraComponents - Can be implemented to include component data
+   * @member {function} getExtraComponents - Can be implemented to include component data
    *   from other sources (e.g., implemented by primitives).
    */
   updateComponents () {
@@ -621,9 +621,9 @@ export class AEntity extends ANode {
    * 4. Set a value for a single-property component, mixin, or normal HTML attribute.
    *
    * @param {string} attrName - Component or attribute name.
-   * @param {any} arg1 - Can be a value, property name, CSS-style property string, or
+   * @param {*} arg1 - Can be a value, property name, CSS-style property string, or
    *   object of properties.
-   * @param {any} arg2 - If arg1 is a property name, this should be a value. Otherwise,
+   * @param {*|bool} arg2 - If arg1 is a property name, this should be a value. Otherwise,
    *   it is a boolean indicating whether to clobber previous values (defaults to false).
    */
   setAttribute (attrName, arg1, arg2) {
@@ -681,7 +681,7 @@ export class AEntity extends ANode {
   /**
    * Reflect component data in the DOM (as seen from the browser DOM Inspector).
    *
-   * @param {boolean} recursive - Also flushToDOM on the children.
+   * @param {bool} recursive - Also flushToDOM on the children.
    **/
   flushToDOM (recursive) {
     var components = this.components;
@@ -757,8 +757,7 @@ export class AEntity extends ANode {
 
   /**
    * Checks if the element is in a given state. e.g. el.is('alive');
-   *
-   * @param {string} state - Name of the state we want to check
+   * @type {string} state - Name of the state we want to check
    */
   is (state) {
     return this.states.indexOf(state) !== -1;
@@ -805,7 +804,7 @@ function checkComponentDefined (el, name) {
  * Check if any mixins contains a component.
  *
  * @param {string} name - Component name.
- * @param {Array<Element>} mixinEls - Array of <a-mixin>s.
+ * @param {array} mixinEls - Array of <a-mixin>s.
  */
 function isComponentMixedIn (name, mixinEls) {
   var i;
@@ -859,3 +858,5 @@ AEntity.componentsUpdated = [];
 AEntity.singlePropUpdate = {};
 
 customElements.define('a-entity', AEntity);
+
+module.exports.AEntity = AEntity;

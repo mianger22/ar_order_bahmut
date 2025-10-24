@@ -1,9 +1,13 @@
-import * as THREE from 'three';
-import * as utils from '../utils/index.js';
-import { registerComponent } from '../core/component.js';
-import { shaders, shaderNames } from '../core/shader.js';
+/* global Promise */
+var utils = require('../utils/');
+var component = require('../core/component');
+var THREE = require('../lib/three');
+var shader = require('../core/shader');
 
 var error = utils.debug('components:material:error');
+var registerComponent = component.registerComponent;
+var shaders = shader.shaders;
+var shaderNames = shader.shaderNames;
 
 /**
  * Material component.
@@ -12,20 +16,16 @@ var error = utils.debug('components:material:error');
  *         three.js's implementation of PBR. Another standard shading model is `flat` which
  *         uses MeshBasicMaterial.
  */
-export var Component = registerComponent('material', {
+module.exports.Component = registerComponent('material', {
   schema: {
     alphaTest: {default: 0.0, min: 0.0, max: 1.0},
     depthTest: {default: true},
     depthWrite: {default: true},
     flatShading: {default: false},
+    npot: {default: false},
     offset: {type: 'vec2', default: {x: 0, y: 0}},
     opacity: {default: 1.0, min: 0.0, max: 1.0},
     repeat: {type: 'vec2', default: {x: 1, y: 1}},
-    magFilter: {default: 'linear', oneOf: ['nearest', 'linear']},
-    minFilter: {
-      default: 'linear-mipmap-linear',
-      oneOf: ['nearest', 'nearest-mipmap-nearest', 'nearest-mipmap-linear', 'linear', 'linear-mipmap-nearest', 'linear-mipmap-linear']
-    },
     shader: {default: 'standard', oneOf: shaderNames, schemaChange: true},
     side: {default: 'front', oneOf: ['front', 'back', 'double']},
     transparent: {default: false},
@@ -167,7 +167,9 @@ export var Component = registerComponent('material', {
    * (Re)create new material. Has side-effects of setting `this.material` and updating
    * material registration in scene.
    *
-   * @param {THREE.Material} material - Material to register.
+   * @param {object} data - Material component data.
+   * @param {object} type - Material type to create.
+   * @returns {object} Material.
    */
   setMaterial: function (material) {
     var el = this.el;
@@ -218,7 +220,8 @@ function parseSide (side) {
 /**
  * Return a three.js constant determining blending
  *
- * @param {string} [blending=normal] - `none`, additive`, `subtractive`,`multiply` or `normal`.
+ * @param {string} [blending=normal]
+ * - `none`, additive`, `subtractive`,`multiply` or `normal`.
  * @returns {number}
  */
 function parseBlending (blending) {

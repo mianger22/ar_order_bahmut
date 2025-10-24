@@ -1,4 +1,4 @@
-import { registerSystem } from '../core/system.js';
+var registerSystem = require('../core/system').registerSystem;
 
 registerSystem('obb-collider', {
   schema: {

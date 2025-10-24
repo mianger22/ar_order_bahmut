@@ -1,8 +1,7 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { registerComponent } from '../core/component.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
+/* global THREE */
+var registerComponent = require('../core/component').registerComponent;
 
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 // Found at https://github.com/aframevr/assets.
 var MODEL_URLS = {
   toonLeft: AFRAME_CDN_ROOT + 'controllers/hands/leftHand.glb',
@@ -36,7 +35,7 @@ EVENTS[ANIMATIONS.point] = 'pointing';
 
 /**
  * Hand controls component that abstracts 6DoF controls:
- *   meta-touch-controls, vive-controls, windows-motion-controls.
+ *   oculus-touch-controls, vive-controls, windows-motion-controls.
  *
  * Originally meant to be a sample implementation of applications-specific controls that
  * abstracts multiple types of controllers.
@@ -49,7 +48,7 @@ EVENTS[ANIMATIONS.point] = 'pointing';
  *
  * @property {string} Hand mapping (`left`, `right`).
  */
-export var Component = registerComponent('hand-controls', {
+module.exports.Component = registerComponent('hand-controls', {
   schema: {
     color: {default: 'white', type: 'color'},
     hand: { default: 'left' },
@@ -64,7 +63,7 @@ export var Component = registerComponent('hand-controls', {
     // Active buttons populated by events provided by the attached controls.
     this.pressedButtons = {};
     this.touchedButtons = {};
-    this.loader = new GLTFLoader();
+    this.loader = new THREE.GLTFLoader();
     this.loader.setCrossOrigin('anonymous');
 
     this.onGripDown = function () { self.handleButton('grip', 'down'); };
@@ -113,28 +112,8 @@ export var Component = registerComponent('hand-controls', {
     mesh.mixer.update(delta / 1000);
   },
 
-  onControllerConnected: function (evt) {
-    var el = this.el;
-    var hand = this.data.hand;
-    var mesh = this.el.getObject3D('mesh');
-
-    el.object3D.visible = true;
-
-    var handModelOrientationZ = hand === 'left' ? Math.PI / 2 : -Math.PI / 2;
-    // The WebXR standard defines the grip space such that a cylinder held in a closed hand points
-    // along the Z axis. The models currently have such a cylinder point along the X-Axis.
-    var handModelOrientationX = el.sceneEl.hasWebXR ? -Math.PI / 2 : 0;
-
-    // Pico4, at least on Wolvic, needs a different rotation offset
-    // for the hand model. Pico Browser claims to use oculus
-    // controllers instead; will load meta-touch-controls and does
-    // not require this adjustment.
-    if (evt.detail.name === 'pico-controls') {
-      handModelOrientationX += Math.PI / 4;
-    }
-
-    mesh.position.set(0, 0, 0);
-    mesh.rotation.set(handModelOrientationX, 0, handModelOrientationZ);
+  onControllerConnected: function () {
+    this.el.object3D.visible = true;
   },
 
   onControllerDisconnected: function () {
@@ -220,6 +199,10 @@ export var Component = registerComponent('hand-controls', {
       var handmodelUrl = MODEL_URLS[handModelStyle + hand.charAt(0).toUpperCase() + hand.slice(1)];
       this.loader.load(handmodelUrl, function (gltf) {
         var mesh = gltf.scene.children[0];
+        var handModelOrientationZ = hand === 'left' ? Math.PI / 2 : -Math.PI / 2;
+        // The WebXR standard defines the grip space such that a cylinder held in a closed hand points
+        // along the Z axis. The models currently have such a cylinder point along the X-Axis.
+        var handModelOrientationX = el.sceneEl.hasWebXR ? -Math.PI / 2 : 0;
         mesh.mixer = new THREE.AnimationMixer(mesh);
         self.clips = gltf.animations;
         el.setObject3D('mesh', mesh);
@@ -227,9 +210,11 @@ export var Component = registerComponent('hand-controls', {
           if (!object.isMesh) { return; }
           object.material.color = new THREE.Color(handColor);
         });
+        mesh.position.set(0, 0, 0);
+        mesh.rotation.set(handModelOrientationX, 0, handModelOrientationZ);
         el.setAttribute('magicleap-controls', controlConfiguration);
         el.setAttribute('vive-controls', controlConfiguration);
-        el.setAttribute('meta-touch-controls', controlConfiguration);
+        el.setAttribute('oculus-touch-controls', controlConfiguration);
         el.setAttribute('pico-controls', controlConfiguration);
         el.setAttribute('windows-motion-controls', controlConfiguration);
         el.setAttribute('hp-mixed-reality-controls', controlConfiguration);

@@ -1,10 +1,10 @@
 /* global customElements, CustomEvent, HTMLElement, MutationObserver */
-import * as utils from '../utils/index.js';
-import * as readyState from './readyState.js';
+var utils = require('../utils/');
+var readyState = require('./readyState');
 
 var warn = utils.debug('core:a-node:warn');
 
-export var knownTags = {
+var knownTags = {
   'a-scene': true,
   'a-assets': true,
   'a-assets-items': true,
@@ -14,8 +14,8 @@ export var knownTags = {
   'a-entity': true
 };
 
-function isANode (node) {
-  return node.tagName.toLowerCase() in knownTags || node.isANode;
+function isNode (node) {
+  return node.tagName.toLowerCase() in knownTags || node.isNode;
 }
 
 /**
@@ -24,12 +24,12 @@ function isANode (node) {
  * Nodes can be modified using mixins.
  * Nodes emit a `loaded` event when they and their children have initialized.
  */
-export class ANode extends HTMLElement {
+class ANode extends HTMLElement {
   constructor () {
     super();
     this.computedMixinStr = '';
     this.hasLoaded = false;
-    this.isANode = true;
+    this.isNode = true;
     this.mixinEls = [];
   }
 
@@ -119,7 +119,7 @@ export class ANode extends HTMLElement {
     if (this.hasLoaded) { return; }
 
     // Default to waiting for all nodes.
-    childFilter = childFilter || isANode;
+    childFilter = childFilter || isNode;
     // Wait for children to load (if any), then load.
     children = this.getChildren();
     childrenLoaded = children.filter(childFilter).map(function (child) {
@@ -313,3 +313,6 @@ ANode.oldMixinIdArray = [];
 ANode.mixinIds = {};
 
 customElements.define('a-node', ANode);
+
+module.exports.ANode = ANode;
+module.exports.knownTags = knownTags;

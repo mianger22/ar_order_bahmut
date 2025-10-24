@@ -3,7 +3,7 @@ title: reflection
 type: components
 layout: docs
 parent_section: components
-source_code: src/components/scene/reflection.js
+source_code: src/components/reflection.js
 examples: []
 ---
 
@@ -30,9 +30,8 @@ Once the user leaves AR this light may have a different color, intensity and pos
 The example below sets the reflection color to red and use lighting estimation for AR.
 
 ```html
-<a-scene reflection="directionalLight:a-light#dirlight;">
+<a-scene reflection="directionalLight:a-light#dirlight;"></a-scene>
 	<a-light id="dirlight" intensity="1" light="castShadow:true;type:directional" position="1 1 1"></a-light>
-</a-scene>
 ```
 
 ## Properties

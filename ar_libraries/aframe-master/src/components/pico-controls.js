@@ -1,12 +1,16 @@
-import { registerComponent } from '../core/component.js';
-import * as THREE from 'three';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
 
 // See Profiles Registry:
 // https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/registry
 // TODO: Add a more robust system for deriving gamepad name.
 var GAMEPAD_ID = 'pico-4';
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var PICO_MODEL_GLB_BASE_URL = AFRAME_CDN_ROOT + 'controllers/pico/pico4/';
 
 /**
@@ -22,22 +26,23 @@ var PICO_MODEL_GLB_BASE_URL = AFRAME_CDN_ROOT + 'controllers/pico/pico4/';
  */
 var INPUT_MAPPING_WEBXR = {
   left: {
-    axes: {thumbstick: [2, 3]},
-    buttons: ['trigger', 'grip', 'none', 'thumbstick', 'xbutton', 'ybutton']
+    axes: {touchpad: [2, 3]},
+    buttons: ['trigger', 'squeeze', 'none', 'thumbstick', 'xbutton', 'ybutton']
   },
   right: {
-    axes: {thumbstick: [2, 3]},
-    buttons: ['trigger', 'grip', 'none', 'thumbstick', 'abutton', 'bbutton']
+    axes: {touchpad: [2, 3]},
+    buttons: ['trigger', 'squeeze', 'none', 'thumbstick', 'abutton', 'bbutton']
   }
 };
 
 /**
  * Pico Controls
  */
-export var Component = registerComponent('pico-controls', {
+module.exports.Component = registerComponent('pico-controls', {
   schema: {
     hand: {default: 'none'},
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'}
   },
 
   mapping: INPUT_MAPPING_WEBXR,
@@ -112,9 +117,9 @@ export var Component = registerComponent('pico-controls', {
       // TODO: verify expected behavior between reserved prefixes.
       idPrefix: GAMEPAD_ID,
       hand: data.hand,
-      controller: this.controllerIndex
+      controller: this.controllerIndex,
+      orientationOffset: data.orientationOffset
     });
-
     // Load model.
     if (!this.data.model) { return; }
     this.el.setAttribute('gltf-model', PICO_MODEL_GLB_BASE_URL + this.data.hand + '.glb');
@@ -158,6 +163,6 @@ export var Component = registerComponent('pico-controls', {
   },
 
   onAxisMoved: function (evt) {
-    emitIfAxesChanged(this, this.mapping[this.data.hand].axes, evt);
+    emitIfAxesChanged(this, this.mapping.axes, evt);
   }
 });

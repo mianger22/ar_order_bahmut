@@ -1,11 +1,15 @@
-import { parseProperties, parseProperty, process as processSchema, isSingleProperty as isSingleProp } from './schema.js';
-import * as components from './component.js';
-import * as utils from '../utils/index.js';
-import * as ready from './readyState.js';
+var components = require('./component');
+var schema = require('./schema');
+var utils = require('../utils/');
+var ready = require('./readyState');
 
+var parseProperties = schema.parseProperties;
+var parseProperty = schema.parseProperty;
+var processSchema = schema.process;
+var isSingleProp = schema.isSingleProperty;
 var styleParser = utils.styleParser;
 
-export var systems = {};  // Keep track of registered systems.
+var systems = module.exports.systems = {};  // Keep track of registered systems.
 
 /**
  * System class definition.
@@ -21,11 +25,10 @@ export var systems = {};  // Keep track of registered systems.
  * and some pieces are missing from the Component facilities (e.g., attribute caching,
  * setAttribute behavior).
  *
- * @constructor
- * @param {Element} sceneEl - Handle to the scene element where system applies to.
- * @property {string} name - Name that system is registered under.
+ * @member {string} name - Name that system is registered under.
+ * @member {Element} sceneEl - Handle to the scene element where system applies to.
  */
-export var System = function (sceneEl) {
+var System = module.exports.System = function (sceneEl) {
   var component = components && components.components[this.name];
 
   // Set reference to scene.
@@ -66,7 +69,7 @@ System.prototype = {
    */
   updateProperties: function (rawData) {
     var oldData = this.data;
-    if (Object.keys(this.schema).length === 0) { return; }
+    if (!Object.keys(schema).length) { return; }
     this.buildData(rawData);
     this.update(oldData);
   },
@@ -76,7 +79,7 @@ System.prototype = {
    */
   buildData: function (rawData) {
     var schema = this.schema;
-    if (Object.keys(schema).length === 0) { return; }
+    if (!Object.keys(schema).length) { return; }
     rawData = rawData || window.HTMLElement.prototype.getAttribute.call(this.sceneEl, this.name);
     if (isSingleProp(schema)) {
       this.data = parseProperty(rawData, schema);
@@ -121,8 +124,9 @@ System.prototype = {
  *
  * @param {string} name - Component name.
  * @param {object} definition - Component property and methods.
+ * @returns {object} Component.
  */
-export function registerSystem (name, definition) {
+module.exports.registerSystem = function (name, definition) {
   var i;
   var NewSystem;
   var proto = {};
@@ -152,4 +156,4 @@ export function registerSystem (name, definition) {
   if (ready.canInitializeElements) {
     for (i = 0; i < scenes.length; i++) { scenes[i].initSystem(name); }
   }
-}
+};

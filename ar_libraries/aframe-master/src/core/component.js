@@ -1,10 +1,10 @@
 /* global Node */
-import * as schema from './schema.js';
-import scenes from './scene/scenes.js';
-import * as systems from './system.js';
-import * as utils from '../utils/index.js';
+var schema = require('./schema');
+var scenes = require('./scene/scenes');
+var systems = require('./system');
+var utils = require('../utils/');
 
-export var components = {}; // Keep track of registered components.
+var components = module.exports.components = {}; // Keep track of registered components.
 var parseProperty = schema.parseProperty;
 var processSchema = schema.process;
 var isSingleProp = schema.isSingleProperty;
@@ -44,12 +44,11 @@ var attrValueProxyHandler = {
  * by adding, removing, or updating components. Entities do not share instances
  * of components.
  *
- * @constructor
- * @param {object} el - Reference to the entity element.
- * @param {string} attrValue - Value of the corresponding HTML attribute.
- * @param {string} id - Optional id for differentiating multiple instances on the same entity.
+ * @member {object} el - Reference to the entity element.
+ * @member {string} attrValue - Value of the corresponding HTML attribute.
+ * @member {string} id - Optional id for differentiating multiple instances on the same entity.
  */
-export var Component = function (el, attrValue, id) {
+var Component = module.exports.Component = function (el, attrValue, id) {
   var self = this;
 
   // If component is sceneOnly check the entity is the scene element
@@ -94,6 +93,7 @@ export var Component = function (el, attrValue, id) {
 
   // Dynamic schema requires special handling of unknown properties to avoid false-positives.
   this.deferUnknownPropertyWarnings = !!this.updateSchema;
+  this.silenceUnknownPropertyWarnings = false;
 
   // Last value passed to updateProperties.
   // This type of throttle ensures that when a burst of changes occurs, the final change to the
@@ -269,7 +269,7 @@ Component.prototype = {
 
   /**
    * @param {string|object} attrValue - Passed argument from setAttribute.
-   * @param {boolean} clobber - Whether or not to overwrite previous data by the attrValue.
+   * @param {bool} clobber - Whether or not to overwrite previous data by the attrValue.
    */
   updateData: function (attrValue, clobber) {
     // Single property (including object based single property)
@@ -298,30 +298,23 @@ Component.prototype = {
   },
 
   updateSchemaIfNeeded: function (attrValue) {
-    if (this.schemaChangeRequired && this.updateSchema) {
-      encounteredUnknownProperties.length = 0;
-
-      this.updateSchema(this.data);
-      utils.objectPool.removeUnusedKeys(this.data, this.schema);
-      this.recomputeData(attrValue);
-      this.schemaChangeRequired = false;
-
-      // Report any excess properties not valid in the updated schema
-      for (var key in this.attrValue) {
-        if (this.attrValue[key] === undefined) { continue; }
-        if (encounteredUnknownProperties.indexOf(key) !== -1) { continue; }
-        if (!(key in this.schema)) {
-          warn('Unknown property `' + key + '` for component `' + this.name + '`.');
-        }
+    if (!this.schemaChangeRequired || !this.updateSchema) {
+      // Log any pending unknown property warning
+      for (var i = 0; i < encounteredUnknownProperties.length; i++) {
+        warn('Unknown property `' + encounteredUnknownProperties[i] +
+              '` for component `' + this.name + '`.');
       }
-    }
-
-    // Log any pending unknown property warning
-    for (var i = 0; i < encounteredUnknownProperties.length; i++) {
-      warn('Unknown property `' + encounteredUnknownProperties[i] +
-            '` for component `' + this.name + '`.');
+      encounteredUnknownProperties.length = 0;
+      return;
     }
     encounteredUnknownProperties.length = 0;
+
+    this.updateSchema(this.data);
+    utils.objectPool.removeUnusedKeys(this.data, this.schema);
+    this.silenceUnknownPropertyWarnings = true;
+    this.recomputeData(attrValue);
+    this.silenceUnknownPropertyWarnings = false;
+    this.schemaChangeRequired = false;
   },
 
   /**
@@ -359,7 +352,7 @@ Component.prototype = {
 
   /**
    * Reset value of a property to the property's default value.
-   * If single property component, reset value to component's default value.
+   * If single-prop component, reset value to component's default value.
    *
    * @param {string} propertyName - Name of property to reset.
    */
@@ -497,10 +490,13 @@ Component.prototype = {
     // Handle warning the user about the unknown property.
     // Since a component might have a dynamic schema, the warning might be
     // silenced or deferred to avoid false-positives.
-    if (this.deferUnknownPropertyWarnings) {
-      encounteredUnknownProperties.push(key);
-    } else if (!this.silenceUnknownPropertyWarnings) {
-      warn('Unknown property `' + key + '` for component `' + this.name + '`.');
+    if (!this.silenceUnknownPropertyWarnings) {
+      // Not silenced, so either deferred or logged.
+      if (this.deferUnknownPropertyWarnings) {
+        encounteredUnknownProperties.push(key);
+      } else if (!this.silenceUnknownPropertyWarnings) {
+        warn('Unknown property `' + key + '` for component `' + this.name + '`.');
+      }
     }
   },
 
@@ -546,15 +542,28 @@ Component.prototype = {
       return;
     }
 
-    for (key in this.schema) {
-      this.attrValueProxy[key] = undefined;
+    if (attrValue && typeof attrValue === 'object') {
+      for (key in this.schema) {
+        this.attrValueProxy[key] = attrValue[key];
+      }
+    } else {
+      for (key in this.schema) {
+        this.attrValueProxy[key] = undefined;
+      }
     }
 
-    if (attrValue && typeof attrValue === 'object') {
-      utils.extend(this.attrValueProxy, attrValue);
-    } else if (typeof attrValue === 'string') {
+    if (typeof attrValue === 'string') {
       // AttrValue is a style string, parse it into the attrValueProxy object
       styleParser.parse(attrValue, this.attrValueProxy);
+    }
+
+    // Report any unknown properties
+    for (key in this.attrValue) {
+      if (this.attrValue[key] === undefined) { continue; }
+      if (encounteredUnknownProperties.indexOf(key) === -1) { continue; }
+      if (!(key in this.schema)) {
+        warn('Unknown property `' + key + '` for component `' + this.name + '`.');
+      }
     }
   },
 
@@ -599,7 +608,9 @@ function eventsBind (component, events) {
 }
 
 // For testing.
-export var registrationOrderWarnings = {};
+if (window.debug) {
+  var registrationOrderWarnings = module.exports.registrationOrderWarnings = {};
+}
 
 /**
  * Register a component to A-Frame.
@@ -608,7 +619,7 @@ export var registrationOrderWarnings = {};
  * @param {object} definition - Component schema and lifecycle method handlers.
  * @returns {object} Component.
  */
-export function registerComponent (name, definition) {
+module.exports.registerComponent = function (name, definition) {
   var NewComponent;
   var proto = {};
   var schema;
@@ -701,7 +712,7 @@ export function registerComponent (name, definition) {
   }
 
   return NewComponent;
-}
+};
 
 /**
  * Checks if a component has defined a method that needs to run every frame.
@@ -714,8 +725,7 @@ function hasBehavior (component) {
  * Wrapper for defined pause method.
  * Pause component by removing tick behavior and calling user's pause method.
  *
- * @param {function} pauseMethod
- * @returns {function}
+ * @param pauseMethod {function}
  */
 function wrapPause (pauseMethod) {
   return function pause () {
@@ -734,8 +744,7 @@ function wrapPause (pauseMethod) {
  * Wrapper for defined play method.
  * Play component by adding tick behavior and calling user's play method.
  *
- * @param {function} playMethod
- * @returns {function}
+ * @param playMethod {function}
  */
 function wrapPlay (playMethod) {
   return function play () {

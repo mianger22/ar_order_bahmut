@@ -1,6 +1,6 @@
-import { registerComponent as register } from '../core/component.js';
+var register = require('../core/component').registerComponent;
 
-export var Component = register('hide-on-enter-vr', {
+module.exports.Component = register('hide-on-enter-vr', {
   init: function () {
     var self = this;
     this.el.sceneEl.addEventListener('enter-vr', function () {

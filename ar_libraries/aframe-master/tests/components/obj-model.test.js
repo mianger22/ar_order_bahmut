@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test */
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test */
+var entityFactory = require('../helpers').entityFactory;
 
 var MTL = '/base/tests/assets/crate/crate.mtl';
 var OBJ = '/base/tests/assets/crate/crate.obj';

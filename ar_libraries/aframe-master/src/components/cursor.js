@@ -1,7 +1,6 @@
-/* global MouseEvent, TouchEvent */
-import * as THREE from 'three';
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+/* global THREE, MouseEvent, TouchEvent */
+var registerComponent = require('../core/component').registerComponent;
+var utils = require('../utils/');
 
 var EVENTS = {
   CLICK: 'click',
@@ -42,7 +41,7 @@ var CANVAS_HOVER_CLASS = 'a-mouse-cursor-hover';
  * @member {Element} intersectedEl - Currently-intersected entity. Used to keep track to
  *         emit events when unintersecting.
  */
-export var Component = registerComponent('cursor', {
+module.exports.Component = registerComponent('cursor', {
   dependencies: ['raycaster'],
 
   schema: {
@@ -86,19 +85,8 @@ export var Component = registerComponent('cursor', {
   },
 
   update: function (oldData) {
-    var rayOrigin = this.data.rayOrigin;
-    if (rayOrigin === oldData.rayOrigin) { return; }
-    if (rayOrigin === 'entity') { this.resetRaycaster(); }
+    if (this.data.rayOrigin === oldData.rayOrigin) { return; }
     this.updateMouseEventListeners();
-    // Update the WebXR event listeners if needed.
-    // This handles the cases a cursor is created or has its rayOrigin changed during an XR session.
-    // In the case the cursor is created before we have an active XR session, it does not add the WebXR event listeners here (addWebXREventListeners is a no-op without xrSession), upon onEnterVR they are added.
-    if (rayOrigin === 'xrselect' || rayOrigin === 'entity') {
-      this.addWebXREventListeners();
-    }
-    if (oldData.rayOrigin === 'xrselect' || oldData.rayOrigin === 'entity') {
-      this.removeWebXREventListeners();
-    }
   },
 
   tick: function () {
@@ -197,7 +185,6 @@ export var Component = registerComponent('cursor', {
       el.removeEventListener(upEvent, self.onCursorUp);
     });
     el.removeEventListener('raycaster-intersection', this.onIntersection);
-    el.removeEventListener('raycaster-closest-entity-changed', this.onIntersection);
     el.removeEventListener('raycaster-intersection-cleared', this.onIntersectionCleared);
     canvas.removeEventListener('mousemove', this.onMouseMove);
     canvas.removeEventListener('touchstart', this.onMouseMove);
@@ -207,8 +194,6 @@ export var Component = registerComponent('cursor', {
     el.sceneEl.removeEventListener('enter-vr', this.onEnterVR);
     window.removeEventListener('resize', this.updateCanvasBounds);
     window.removeEventListener('scroll', this.updateCanvasBounds);
-
-    this.removeWebXREventListeners();
   },
 
   updateMouseEventListeners: function () {
@@ -226,39 +211,6 @@ export var Component = registerComponent('cursor', {
     this.updateCanvasBounds();
   },
 
-  resetRaycaster: function () {
-    this.el.setAttribute('raycaster', {
-      direction: new THREE.Vector3().set(0, 0, -1),
-      origin: new THREE.Vector3()
-    });
-  },
-
-  addWebXREventListeners: function () {
-    var self = this;
-    var xrSession = this.el.sceneEl.xrSession;
-    if (xrSession) {
-      WEBXR_EVENTS.DOWN.forEach(function (downEvent) {
-        xrSession.addEventListener(downEvent, self.onCursorDown);
-      });
-      WEBXR_EVENTS.UP.forEach(function (upEvent) {
-        xrSession.addEventListener(upEvent, self.onCursorUp);
-      });
-    }
-  },
-
-  removeWebXREventListeners: function () {
-    var self = this;
-    var xrSession = this.el.sceneEl.xrSession;
-    if (xrSession) {
-      WEBXR_EVENTS.DOWN.forEach(function (downEvent) {
-        xrSession.removeEventListener(downEvent, self.onCursorDown);
-      });
-      WEBXR_EVENTS.UP.forEach(function (upEvent) {
-        xrSession.removeEventListener(upEvent, self.onCursorUp);
-      });
-    }
-  },
-
   onMouseMove: (function () {
     var direction = new THREE.Vector3();
     var mouse = new THREE.Vector2();
@@ -268,7 +220,6 @@ export var Component = registerComponent('cursor', {
     return function (evt) {
       var bounds = this.canvasBounds;
       var camera = this.el.sceneEl.camera;
-      var cameraElParent;
       var left;
       var point;
       var top;
@@ -297,19 +248,12 @@ export var Component = registerComponent('cursor', {
       if (this.data.rayOrigin === 'xrselect' && (evt.type === 'selectstart' || evt.type === 'fakeselectevent')) {
         frame = evt.frame;
         inputSource = evt.inputSource;
-        referenceSpace = this.el.sceneEl.renderer.xr.getReferenceSpace();
+        referenceSpace = this.el.renderer.xr.getReferenceSpace();
         pose = frame.getPose(inputSource.targetRaySpace, referenceSpace);
-        if (pose) {
-          transform = pose.transform;
-          direction.set(0, 0, -1);
-          direction.applyQuaternion(transform.orientation);
-          origin.copy(transform.position);
-
-          // Transform XRPose into world space
-          cameraElParent = camera.el.object3D.parent;
-          cameraElParent.localToWorld(origin);
-          direction.transformDirection(cameraElParent.matrixWorld);
-        }
+        transform = pose.transform;
+        direction.set(0, 0, -1);
+        direction.applyQuaternion(transform.orientation);
+        origin.copy(transform.position);
       } else if (evt.type === 'fakeselectout') {
         direction.set(0, 1, 0);
         origin.set(0, 9999, 0);
@@ -370,7 +314,6 @@ export var Component = registerComponent('cursor', {
    */
   onCursorUp: function (evt) {
     if (!this.isCursorDown) { return; }
-    if (this.data.rayOrigin === 'xrselect' && this.activeXRInput !== evt.inputSource) { return; }
 
     this.isCursorDown = false;
 
@@ -395,7 +338,7 @@ export var Component = registerComponent('cursor', {
     }
 
     // if the current xr input stops selecting then make the ray caster point somewhere else
-    if (data.rayOrigin === 'xrselect') {
+    if (data.rayOrigin === 'xrselect' && this.activeXRInput === evt.inputSource) {
       this.onMouseMove({
         type: 'fakeselectout'
       });
@@ -450,11 +393,17 @@ export var Component = registerComponent('cursor', {
   },
 
   onEnterVR: function () {
-    var rayOrigin = this.data.rayOrigin;
     this.clearCurrentIntersection(true);
-    if (rayOrigin === 'xrselect' || rayOrigin === 'entity') {
-      this.addWebXREventListeners();
-    }
+    var xrSession = this.el.sceneEl.xrSession;
+    var self = this;
+    if (!xrSession) { return; }
+    if (this.data.rayOrigin === 'mouse') { return; }
+    WEBXR_EVENTS.DOWN.forEach(function (downEvent) {
+      xrSession.addEventListener(downEvent, self.onCursorDown);
+    });
+    WEBXR_EVENTS.UP.forEach(function (upEvent) {
+      xrSession.addEventListener(upEvent, self.onCursorUp);
+    });
   },
 
   setIntersection: function (intersectedEl, intersection) {

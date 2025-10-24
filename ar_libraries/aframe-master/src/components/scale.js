@@ -1,6 +1,6 @@
-import { registerComponent } from '../core/component.js';
+var registerComponent = require('../core/component').registerComponent;
 
-export var Component = registerComponent('scale', {
+module.exports.Component = registerComponent('scale', {
   schema: {
     type: 'vec3',
     default: {x: 1, y: 1, z: 1}

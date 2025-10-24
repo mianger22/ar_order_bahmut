@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import debug from './debug.js';
+/* global THREE */
+var debug = require('./debug');
 
 var warn = debug('utils:coordinates:warn');
 
@@ -7,7 +7,8 @@ var warn = debug('utils:coordinates:warn');
 var COORDINATE_KEYS = ['x', 'y', 'z', 'w'];
 
 // Coordinate string regex. Handles negative, positive, and decimals.
-export var regex = /^\s*((-?\d*\.{0,1}\d+(e-?\d+)?)\s+){2,3}(-?\d*\.{0,1}\d+(e-?\d+)?)\s*$/;
+var regex = /^\s*((-?\d*\.{0,1}\d+(e-?\d+)?)\s+){2,3}(-?\d*\.{0,1}\d+(e-?\d+)?)\s*$/;
+module.exports.regex = regex;
 
 var whitespaceRegex = /\s+/g;
 
@@ -15,12 +16,12 @@ var whitespaceRegex = /\s+/g;
  * Parses coordinates from an "x y z" string.
  * Example: "3 10 -5" to {x: 3, y: 10, z: -5}.
  *
- * @param {string} value - An "x y z" string.
+ * @param {string} val - An "x y z" string.
  * @param {string} defaultVec - fallback value.
  * @param {object} target - Optional target object for coordinates.
  * @returns {object} An object with keys [x, y, z].
  */
-export function parse (value, defaultVec, target) {
+function parse (value, defaultVec, target) {
   var coordinate;
   var defaultVal;
   var key;
@@ -60,6 +61,7 @@ export function parse (value, defaultVec, target) {
   }
   return vec;
 }
+module.exports.parse = parse;
 
 /**
  * Stringify coordinates from an object with keys [x y z].
@@ -68,7 +70,7 @@ export function parse (value, defaultVec, target) {
  * @param {object|string} data - An object with keys [x y z].
  * @returns {string} An "x y z" string.
  */
-export function stringify (data) {
+function stringify (data) {
   var str;
   if (typeof data !== 'object') { return data; }
   str = data.x + ' ' + data.y;
@@ -76,6 +78,7 @@ export function stringify (data) {
   if (data.w != null) { str += ' ' + data.w; }
   return str;
 }
+module.exports.stringify = stringify;
 
 /**
  * Compares the values of two coordinates to check equality.
@@ -84,25 +87,26 @@ export function stringify (data) {
  * @param {object|string} b - An object with keys [x y z].
  * @returns {boolean} True if both coordinates are equal, false otherwise
  */
-export function equals (a, b) {
+function equals (a, b) {
   if (typeof a !== 'object' || typeof b !== 'object') {
     return a === b;
   }
   return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
 }
+module.exports.equals = equals;
 
 /**
- * @param {string} value
- * @returns {boolean}
+ * @returns {bool}
  */
-export function isCoordinates (value) {
+function isCoordinates (value) {
   return regex.test(value);
 }
+module.exports.isCoordinates = isCoordinates;
 
-export function isCoordinate (value) {
+module.exports.isCoordinate = function (value) {
   warn('`AFRAME.utils.isCoordinate` has been renamed to `AFRAME.utils.isCoordinates`');
   return isCoordinates(value);
-}
+};
 
 function parseIfString (val) {
   if (val !== null && val !== undefined && val.constructor === String) {
@@ -114,6 +118,6 @@ function parseIfString (val) {
 /**
  * Convert {x, y, z} object to three.js Vector3.
  */
-export function toVector3 (vec3) {
+module.exports.toVector3 = function (vec3) {
   return new THREE.Vector3(vec3.x, vec3.y, vec3.z);
-}
+};

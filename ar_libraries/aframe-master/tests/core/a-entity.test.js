@@ -1,10 +1,11 @@
-/* global AFRAME, assert, sinon, setup, suite, teardown, test, HTMLElement */
-import { AEntity } from 'core/a-entity.js';
-import { ANode } from 'core/a-node.js';
-import { extend } from 'utils/index.js';
-import { registerComponent, components } from 'core/component.js';
-import THREE from 'lib/three.js';
-import * as helpers from '../helpers.js';
+/* global AFRAME, assert, process, sinon, setup, suite, teardown, test, HTMLElement */
+var AEntity = require('core/a-entity').AEntity;
+var ANode = require('core/a-node').ANode;
+var extend = require('utils').extend;
+var registerComponent = require('core/component').registerComponent;
+var components = require('core/component').components;
+var THREE = require('index').THREE;
+var helpers = require('../helpers');
 
 var elFactory = helpers.elFactory;
 var mixinFactory = helpers.mixinFactory;
@@ -37,7 +38,7 @@ suite('a-entity', function () {
   });
 
   test('createdCallback', function () {
-    assert.ok(el.isANode);
+    assert.ok(el.isNode);
     assert.ok(el.isEntity);
   });
 
@@ -552,7 +553,7 @@ suite('a-entity', function () {
 
     test('updates DOM attributes of a multiple component', function () {
       var soundAttrValue;
-      var soundStr = 'src: url(mysoundfile.mp3); autoplay: true';
+      var soundStr = 'autoplay: true; src: url(mysoundfile.mp3)';
       el.setAttribute('sound__1', {'src': 'url(mysoundfile.mp3)', autoplay: true});
       soundAttrValue = HTMLElement.prototype.getAttribute.call(el, 'sound__1');
       assert.equal(soundAttrValue, '');
@@ -617,7 +618,7 @@ suite('a-entity', function () {
       assert.notEqual(el.sceneEl.behaviors.test.tick.array.indexOf(el.components.test), -1);
       assert.notEqual(el.sceneEl.behaviors.test.tock.array.indexOf(el.components.test), -1);
       parentEl.removeChild(el);
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.ok('test' in el.components);
         assert.equal(el.sceneEl.behaviors.test.tick.array.indexOf(el.components.test), -1);
         assert.equal(el.sceneEl.behaviors.test.tock.array.indexOf(el.components.test), -1);
@@ -668,10 +669,10 @@ suite('a-entity', function () {
       var bLoaded = false;
       el.appendChild(a);
       el.appendChild(b);
-      setTimeout(function () {
-        a.isANode = false;
+      process.nextTick(function () {
+        a.isNode = false;
         a.hasLoaded = false;
-        b.isANode = false;
+        b.isNode = false;
         b.hasLoaded = false;
         el.hasLoaded = false;
         el.addEventListener('loaded', function () {
@@ -696,10 +697,10 @@ suite('a-entity', function () {
       var bLoaded = false;
       el.appendChild(a);
       el.appendChild(b);
-      setTimeout(function () {
-        a.isANode = false;
+      process.nextTick(function () {
+        a.isNode = false;
         a.hasLoaded = false;
-        b.isANode = false;
+        b.isNode = false;
         b.hasLoaded = false;
         el.hasLoaded = false;
         el.addEventListener('loaded', function () {
@@ -727,9 +728,9 @@ suite('a-entity', function () {
       assert.notOk('height' in componentData);
     });
 
-    test('returns undefined if component is at defaults', function () {
+    test('returns empty object if component is at defaults', function () {
       el.setAttribute('material', '');
-      assert.equal(el.getDOMAttribute('material'), undefined);
+      assert.shallowDeepEqual(el.getDOMAttribute('material'), {});
     });
 
     test('returns partial component data', function () {
@@ -1320,7 +1321,7 @@ suite('a-entity', function () {
 
     test('merges component properties from mixin', function (done) {
       mixinFactory('box', {geometry: 'primitive: box'});
-      setTimeout(function () {
+      process.nextTick(function () {
         el.setAttribute('mixin', 'box');
         el.setAttribute('geometry', {depth: 5, height: 5, width: 5});
         assert.shallowDeepEqual(el.getAttribute('geometry'), {

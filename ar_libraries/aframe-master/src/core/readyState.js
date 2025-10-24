@@ -3,12 +3,12 @@
 /**
  * Flag indicating if A-Frame can initialize the scene or should wait.
  */
-export var canInitializeElements = false;
+module.exports.canInitializeElements = false;
 
 /**
  * Waits for the document to be ready.
  */
-export function waitForDocumentReadyState () {
+function waitForDocumentReadyState () {
   if (document.readyState === 'complete') {
     emitReady();
     return;
@@ -20,19 +20,16 @@ export function waitForDocumentReadyState () {
     emitReady();
   });
 }
+module.exports.waitForDocumentReadyState = waitForDocumentReadyState;
 
 /**
  * Signals A-Frame that everything is ready to initialize.
  */
-export function emitReady () {
-  if (canInitializeElements) { return; }
-  canInitializeElements = true;
+function emitReady () {
+  if (module.exports.canInitializeElements) { return; }
+  module.exports.canInitializeElements = true;
   setTimeout(function () {
     document.dispatchEvent(new CustomEvent('aframeready'));
   });
 }
-
-/** Resets the canInitializeElements flag, used for testing */
-export function reset () {
-  canInitializeElements = false;
-}
+module.exports.emitReady = emitReady;

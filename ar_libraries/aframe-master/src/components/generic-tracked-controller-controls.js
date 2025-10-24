@@ -1,5 +1,9 @@
-import { registerComponent } from '../core/component.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
+
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
 
 var GAMEPAD_ID_PREFIX = 'generic';
 
@@ -29,11 +33,12 @@ var INPUT_MAPPING = {
  * controller buttons: trackpad, trigger
  * Load a controller model and highlight the pressed buttons.
  */
-export var Component = registerComponent('generic-tracked-controller-controls', {
+module.exports.Component = registerComponent('generic-tracked-controller-controls', {
   schema: {
     hand: {default: ''},  // This informs the degenerate arm model.
     defaultModel: {default: true},
     defaultModelColor: {default: 'gray'},
+    orientationOffset: {type: 'vec3'},
     disabled: {default: false}
   },
 
@@ -62,6 +67,7 @@ export var Component = registerComponent('generic-tracked-controller-controls', 
     this.onButtonTouchEnd = function (evt) { onButtonEvent(evt.detail.id, 'touchend', self); };
     this.controllerPresent = false;
     this.wasControllerConnected = false;
+    this.lastControllerCheck = 0;
     this.bindMethods();
 
     // generic-tracked-controller-controls has the lowest precedence.
@@ -128,6 +134,7 @@ export var Component = registerComponent('generic-tracked-controller-controls', 
     el.setAttribute('tracked-controls', {
       hand: data.hand,
       idPrefix: GAMEPAD_ID_PREFIX,
+      orientationOffset: data.orientationOffset,
       iterateControllerProfiles: true
     });
     if (!this.data.defaultModel) { return; }

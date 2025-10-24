@@ -1,5 +1,5 @@
 /* global assert, suite, test, setup */
-import * as helpers from '../../../helpers.js';
+var helpers = require('../../../helpers');
 
 suite('a-obj-model', function () {
   setup(function (done) {
@@ -16,7 +16,7 @@ suite('a-obj-model', function () {
   test('can set obj-model.mtl', function (done) {
     var el = this.objModelEl;
     el.setAttribute('obj-model', 'mtl', 'mymtl.mtl');
-    setTimeout(function () {
+    process.nextTick(function () {
       assert.equal(el.getAttribute('obj-model').mtl, 'mymtl.mtl');
       done();
     });
@@ -25,7 +25,7 @@ suite('a-obj-model', function () {
   test('can set obj-model.obj', function (done) {
     var el = this.objModelEl;
     el.setAttribute('obj-model', 'obj', 'myobj.obj');
-    setTimeout(function () {
+    process.nextTick(function () {
       assert.equal(el.getAttribute('obj-model').obj, 'myobj.obj');
       done();
     });

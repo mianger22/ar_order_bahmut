@@ -1,8 +1,9 @@
 /* global customElements */
-import { knownTags } from '../../core/a-node.js';
-import { AEntity } from '../../core/a-entity.js';
-import { components } from '../../core/component.js';
-import * as utils from '../../utils/index.js';
+var knownTags = require('../../core/a-node').knownTags;
+var AEntity = require('../../core/a-entity').AEntity;
+
+var components = require('../../core/component').components;
+var utils = require('../../utils/');
 
 var debug = utils.debug;
 var setComponentProperty = utils.entity.setComponentProperty;
@@ -10,9 +11,9 @@ var log = debug('extras:primitives:debug');
 var warn = debug('extras:primitives:warn');
 var error = debug('extras:primitives:error');
 
-export var primitives = {};
+var primitives = module.exports.primitives = {};
 
-export function registerPrimitive (name, definition) {
+module.exports.registerPrimitive = function registerPrimitive (name, definition) {
   name = name.toLowerCase();
 
   if (knownTags[name]) {
@@ -171,7 +172,7 @@ export function registerPrimitive (name, definition) {
   // Store.
   primitives[name] = primitiveClass;
   return primitiveClass;
-}
+};
 
 /**
  * Sets the relevant property based on the mapping property path.
@@ -195,7 +196,7 @@ function applyMapping (mapping, attrValue, data) {
  */
 function addComponentMapping (componentName, mappings) {
   var schema = components[componentName].schema;
-  Object.keys(schema).forEach(function (prop) {
+  Object.keys(schema).map(function (prop) {
     // Hyphenate where there is camelCase.
     var attrName = prop.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     // If there is a mapping collision, prefix with component name and hyphen.
@@ -207,18 +208,19 @@ function addComponentMapping (componentName, mappings) {
 /**
  * Helper to define a primitive, building mappings using a component schema.
  */
-export function definePrimitive (tagName, defaultComponents, mappings) {
+function definePrimitive (tagName, defaultComponents, mappings) {
   // If no initial mappings provided, start from empty map.
   mappings = mappings || {};
 
   // From the default components, add mapping automagically.
-  Object.keys(defaultComponents).forEach(function buildMappings (componentName) {
+  Object.keys(defaultComponents).map(function buildMappings (componentName) {
     addComponentMapping(componentName, mappings);
   });
 
   // Register the primitive.
-  registerPrimitive(tagName, utils.extendDeep({}, null, {
+  module.exports.registerPrimitive(tagName, utils.extendDeep({}, null, {
     defaultComponents: defaultComponents,
     mappings: mappings
   }));
 }
+module.exports.definePrimitive = definePrimitive;

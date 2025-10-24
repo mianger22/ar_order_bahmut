@@ -1,16 +1,15 @@
 /* global DeviceOrientationEvent  */
-import * as THREE from 'three';
-import { DeviceOrientationControls } from '../../vendor/DeviceOrientationControls.js';
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 
 // To avoid recalculation at every mouse movement tick
 var PI_2 = Math.PI / 2;
 
 /**
- * look-controls. Update entity pose, factoring mouse, touch.
+ * look-controls. Update entity pose, factoring mouse, touch, and WebVR API data.
  */
-export var Component = registerComponent('look-controls', {
+module.exports.Component = registerComponent('look-controls', {
   dependencies: ['position', 'rotation'],
 
   schema: {
@@ -57,7 +56,7 @@ export var Component = registerComponent('look-controls', {
 
     // Only on mobile devices and only enabled if DeviceOrientation permission has been granted.
     if (utils.device.isMobile() || utils.device.isMobileDeviceRequestingDesktopSite()) {
-      magicWindowControls = this.magicWindowControls = new DeviceOrientationControls(this.magicWindowObject);
+      magicWindowControls = this.magicWindowControls = new THREE.DeviceOrientationControls(this.magicWindowObject);
       if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) {
         magicWindowControls.enabled = false;
         if (this.el.sceneEl.components['device-orientation-permission-ui'].permissionGranted) {

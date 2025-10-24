@@ -170,9 +170,7 @@ SPATIAL.utils = {
       xc = i < s || i >= 3 * s ? wi : -wi;
       yc = i < 2 * s ? hi : -hi;
 
-      positions.push(xc, yc, 0,
-                     xc + r * cosa, yc + r * sina, 0,
-                     xc + r * cosb, yc + r * sinb, 0);
+      positions.push(xc, yc, 0, xc + r * cosa, yc + r * sina, 0, xc + r * cosb, yc + r * sinb, 0);
 
       normals.push(0, 0, 1);
       normals.push(0, 0, 1);
@@ -181,9 +179,7 @@ SPATIAL.utils = {
       uc = i < s || i >= 3 * s ? ur : ul;
       vc = i < 2 * s ? vh : vl;
 
-      uvs.push(uc, vc,
-               uc + ul * cosa, vc + vl * sina,
-               uc + ul * cosb, vc + vl * sinb);
+      uvs.push(uc, vc, uc + ul * cosa, vc + vl * sina, uc + ul * cosb, vc + vl * sinb);
 
       phia = phib;
     }
@@ -264,9 +260,7 @@ SPATIAL.utils = {
       xc = i < s || i >= 3 * s ? wi : -wi;
       yc = i < 2 * s ? hi : -hi;
 
-      positions.push(xc, yc, 0,
-                     xc + r * cosa, yc + r * sina, 0,
-                     xc + r * cosb, yc + r * sinb, 0);
+      positions.push(xc, yc, 0, xc + r * cosa, yc + r * sina, 0, xc + r * cosb, yc + r * sinb, 0);
 
       normals.push(0, 0, 1);
       normals.push(0, 0, 1);
@@ -276,8 +270,8 @@ SPATIAL.utils = {
       vc = i < 2 * s ? vh : vl;
 
       uvs.push(uc, vc,
-               uc + ul * cosa, vc + vl * sina,
-               uc + ul * cosb, vc + vl * sinb);
+              uc + ul * cosa, vc + vl * sina,
+              uc + ul * cosb, vc + vl * sinb);
 
       phia = phib;
     }

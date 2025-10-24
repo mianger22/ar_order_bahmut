@@ -6,7 +6,7 @@ parent_section: components
 source_code: src/components/gltf-model.js
 examples:
  - title: Modifying Material of Model
-   src: https://aframe.io/aframe/examples/test/gltf-model/modify-materials.html
+   src: https://glitch.com/edit/#!/aframe-modify-model-material?path=index.html:1:0
 ---
 
 [about-gltf]: https://www.khronos.org/gltf
@@ -25,9 +25,9 @@ Work on the [three.js glTF loader][threejsgltf] and converters are still
 active.
 
 > **NOTE:** A-Frame supports glTF 2.0. For models using older versions of the
-> glTF format, use `gltf-model-legacy` from [aframe-extras][extras].
+> glTF format, use `gltf-model-legacy` from [donmccurdy/aframe-extras][extras].
 
-[extras]: https://github.com/c-frame/aframe-extras/tree/master/src/loaders
+[extras]: https://github.com/donmccurdy/aframe-extras/tree/master/src/loaders
 
 <!--toc-->
 
@@ -78,16 +78,6 @@ file.
 |----------|--------------------------------------|
 | selector | Selector to an `<a-asset-item>`      |
 | string   | `url()`-enclosed path to a glTF file |
-| Data URL | data:model/gltf-binary;base64,...    |
-
-
-Data URL can be used for small glb files if you want to embed the assets in
-the html page. You can create a Data URL with those commands:
-
-```sh
-echo -n "data:model/gltf-binary;base64," >/tmp/base64.txt
-base64 -w 0 model.glb >>/tmp/base64.txt
-```
 
 ## Events
 
@@ -108,7 +98,7 @@ rendering.
 
 ## Using animations
 
-If you want to use the animations from your glTF model, you can use the [animation-mixer](https://github.com/c-frame/aframe-extras/tree/master/src/loaders#animation) component from [aframe-extras](https://github.com/c-frame/aframe-extras). By default all animations are played in a loop.
+If you want to use the animations from your glTF model, you can use the [animation-mixer](https://github.com/donmccurdy/aframe-extras/tree/master/src/loaders#animation) component from [aframe-extras](https://github.com/donmccurdy/aframe-extras). By default all animations are played in a loop.
 
 ```html
 <a-entity gltf-model="#monster" animation-mixer></a-entity>
@@ -139,7 +129,7 @@ You'll also need to load a decoder library by configuring scene properties as ex
 
 ## Scene properties
 
-[draco-decoders]: https://github.com/mrdoob/three.js/tree/master/examples/jsm/libs/draco/gltf
+[draco-decoders]: https://github.com/mrdoob/three.js/tree/master/examples/js/libs/draco/gltf
 [meshopt-decoder]: https://github.com/zeux/meshoptimizer/tree/master/js
 
 When using glTF models compressed with Draco, KTX2 or Meshopt, you must configure the path to the necessary decoders:
@@ -154,7 +144,7 @@ When using glTF models compressed with Draco, KTX2 or Meshopt, you must configur
 
 | Property         | Description                                                                                                                                                                                           | Default Value                       |
 |------------------|--------------------------------------|----|
-| dracoDecoderPath | Path to the Draco decoder libraries. | 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/' |
+| dracoDecoderPath | Path to the Draco decoder libraries. | 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/' |
 | basisTranscoderPath | Path to the basis/KTX2 transcoder libraries. | '' |
 | meshoptDecoderPath | Path to the Meshopt decoder.       | '' |
 
@@ -165,10 +155,9 @@ When using glTF models compressed with Draco, KTX2 or Meshopt, you must configur
 * `draco_wasm_wrapper.js` — JavaScript wrapper for the WASM decoder.
 
 These files are available from the three.js repository, under
-[examples/jsm/libs/draco/gltf][draco-decoders], but a more recent version may
-exist in the [draco repository](https://github.com/google/draco/releases).
-The `gltf-model` component will automatically choose whether to use a WASM or JavaScript
-decoder, so both should be included.
+[examples/js/libs/draco/gltf][draco-decoders]. The `gltf-model` component will
+automatically choose whether to use a WASM or JavaScript decoder, so both should
+be included.
 
 `basisTranscoderPath` path must be a folder containing two files:
 

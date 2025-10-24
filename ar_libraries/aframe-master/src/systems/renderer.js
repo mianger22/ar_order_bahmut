@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { registerSystem } from '../core/system.js';
-import * as utils from '../utils/index.js';
+var registerSystem = require('../core/system').registerSystem;
+var utils = require('../utils/');
+var THREE = require('../lib/three');
 
 var debug = utils.debug;
 var warn = debug('components:renderer:warn');
@@ -8,7 +8,7 @@ var warn = debug('components:renderer:warn');
 /**
  * Determines state of various renderer properties.
  */
-export var System = registerSystem('renderer', {
+module.exports.System = registerSystem('renderer', {
   schema: {
     antialias: {default: 'auto', oneOf: ['true', 'false', 'auto']},
     highRefreshRate: {default: utils.device.isOculusBrowser()},
@@ -16,8 +16,9 @@ export var System = registerSystem('renderer', {
     maxCanvasWidth: {default: -1},
     maxCanvasHeight: {default: -1},
     multiviewStereo: {default: false},
-    exposure: {default: 1, if: {toneMapping: ['ACESFilmic', 'linear', 'reinhard', 'cineon', 'AgX', 'neutral']}},
-    toneMapping: {default: 'no', oneOf: ['no', 'ACESFilmic', 'linear', 'reinhard', 'cineon', 'AgX', 'neutral']},
+    physicallyCorrectLights: {default: false},
+    exposure: {default: 1, if: {toneMapping: ['ACESFilmic', 'linear', 'reinhard', 'cineon']}},
+    toneMapping: {default: 'no', oneOf: ['no', 'ACESFilmic', 'linear', 'reinhard', 'cineon']},
     precision: {default: 'high', oneOf: ['high', 'medium', 'low']},
     anisotropy: {default: 1},
     sortTransparentObjects: {default: false},
@@ -34,6 +35,9 @@ export var System = registerSystem('renderer', {
     // This is the rendering engine, such as THREE.js so copy over any persistent properties from the rendering system.
     var renderer = sceneEl.renderer;
 
+    if (!data.physicallyCorrectLights) {
+      renderer.useLegacyLights = !data.physicallyCorrectLights;
+    }
     renderer.toneMapping = THREE[toneMappingName + 'ToneMapping'];
     THREE.Texture.DEFAULT_ANISOTROPY = data.anisotropy;
 
@@ -110,7 +114,7 @@ export var System = registerSystem('renderer', {
 // - sort front-to-back by z-depth from camera (this should minimize overdraw)
 // - otherwise leave objects in default order (object tree order)
 
-export function sortFrontToBack (a, b) {
+function sortFrontToBack (a, b) {
   if (a.groupOrder !== b.groupOrder) {
     return a.groupOrder - b.groupOrder;
   }
@@ -123,7 +127,7 @@ export function sortFrontToBack (a, b) {
 // Default sort for transparent objects:
 // - respect groupOrder & renderOrder settings
 // - otherwise leave objects in default order (object tree order)
-export function sortRenderOrderOnly (a, b) {
+function sortRenderOrderOnly (a, b) {
   if (a.groupOrder !== b.groupOrder) {
     return a.groupOrder - b.groupOrder;
   }
@@ -134,7 +138,7 @@ export function sortRenderOrderOnly (a, b) {
 // - respect groupOrder & renderOrder settings
 // - sort back-to-front by z-depth from camera
 // - otherwise leave objects in default order (object tree order)
-export function sortBackToFront (a, b) {
+function sortBackToFront (a, b) {
   if (a.groupOrder !== b.groupOrder) {
     return a.groupOrder - b.groupOrder;
   }
@@ -143,3 +147,8 @@ export function sortBackToFront (a, b) {
   }
   return b.z - a.z;
 }
+
+// exports needed for Unit Tests
+module.exports.sortFrontToBack = sortFrontToBack;
+module.exports.sortRenderOrderOnly = sortRenderOrderOnly;
+module.exports.sortBackToFront = sortBackToFront;

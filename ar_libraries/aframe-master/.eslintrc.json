@@ -4,11 +4,6 @@
     "ecmaVersion": 12
   },
   "rules": {
-    "indent": ["error", 2, { "SwitchCase": 1, "ignoreComments": true, "CallExpression": { "arguments": "first" } }],
-
-    /* To work towards no-build. */
-    "import/extensions": ["warn", "always", { "js": "always" }],
-
     /* These rules are incompatible with ES5. */
     "no-var": "off",
     "object-shorthand": "off",
@@ -18,6 +13,7 @@
     /* These rules are compatible with ES5
        However they involve non-trivial code changes
        Therefore need more careful review before adopting. */
+    "array-callback-return": "off",
     "no-mixed-operators": "off",
     "no-unreachable-loop": "off",
     "no-useless-return": "off",
@@ -28,7 +24,9 @@
        careful co-ordination is needed in adopting the rule to avoid
        creating merge issues for other PRs. */
     "dot-notation": "off",
+    "indent": "off",
     "no-multi-spaces": "off",
+    "no-unused-vars": "off",
     "object-curly-spacing": "off",
     "quote-props": "off"
   },
@@ -38,15 +36,8 @@
         The exception is that ES6 classes are used sparingly - see exceptions below. */
       "files": ["./src/**/*.js"],
       "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": 6
-      }
-    },
-    {
-      /* This acts as a barrel file and uses 'export as', which is an ES11 feature */
-      "files": ["./src/utils/index.js"],
-      "parserOptions": {
-        "ecmaVersion": 11
+        "sourceType": "script",
+        "ecmaVersion": 5
       }
     },
     {

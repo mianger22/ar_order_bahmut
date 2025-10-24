@@ -67,6 +67,7 @@ AFRAME.registerComponent('hand-menu-button', {
   onPinchEnded: (function () {
     var spawnPosition = new THREE.Vector3(0, 1, 0);
     return function () {
+      var cubeEl;
       var newEntityEl;
       if (!this.menuOpen) { return; }
       this.menuOpen = false;

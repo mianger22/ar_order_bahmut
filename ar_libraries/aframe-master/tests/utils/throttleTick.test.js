@@ -1,5 +1,5 @@
 /* global assert, suite, test */
-import { throttleTick } from 'utils/index.js';
+var throttleTick = require('utils').throttleTick;
 
 suite('utils.throttleTick', function () {
   var ts;

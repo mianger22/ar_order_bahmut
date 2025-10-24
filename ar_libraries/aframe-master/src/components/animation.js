@@ -1,7 +1,8 @@
-import * as THREE from 'three';
-import anime from 'super-animejs';
-import { registerComponent, components } from '../core/component.js';
-import * as utils from '../utils/index.js';
+var anime = require('super-animejs').default;
+var components = require('../core/component').components;
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+var utils = require('../utils');
 
 var colorHelperFrom = new THREE.Color();
 var colorHelperTo = new THREE.Color();
@@ -38,7 +39,7 @@ var STRING_OBJECT3D = 'object3D';
  * @member {object} animation - anime.js instance.
  * @member {boolean} animationIsPlaying - Control if animation is playing.
  */
-export var Component = registerComponent('animation', {
+module.exports.Component = registerComponent('animation', {
   schema: {
     autoplay: {default: true},
     delay: {default: 0},
@@ -349,16 +350,14 @@ export var Component = registerComponent('animation', {
     var key;
     var from;
     var to;
-    var split = splitDot(data.property);
-    var property = split[0] === 'object3D' ? split[1] : split[0];
 
     // Parse coordinates.
     from = data.from !== ''
       ? utils.coordinates.parse(data.from)  // If data.from defined, use that.
-      : getComponentProperty(el, property);  // If data.from not defined, get on the fly.
+      : getComponentProperty(el, data.property);  // If data.from not defined, get on the fly.
     to = utils.coordinates.parse(data.to);
 
-    if (property === PROP_ROTATION) {
+    if (data.property === PROP_ROTATION) {
       toRadians(from);
       toRadians(to);
     }
@@ -370,8 +369,8 @@ export var Component = registerComponent('animation', {
     for (key in to) { config[key] = to[key]; }
 
     // If animating object3D transformation, run more optimized updater.
-    if (property === PROP_POSITION || property === PROP_ROTATION ||
-        property === PROP_SCALE) {
+    if (data.property === PROP_POSITION || data.property === PROP_ROTATION ||
+        data.property === PROP_SCALE) {
       config.update = (function () {
         var lastValue = {};
         return function (anim) {
@@ -386,7 +385,7 @@ export var Component = registerComponent('animation', {
           lastValue.y = value.y;
           lastValue.z = value.z;
 
-          el.object3D[property].set(value.x, value.y, value.z);
+          el.object3D[data.property].set(value.x, value.y, value.z);
         };
       })();
       return;
@@ -416,6 +415,7 @@ export var Component = registerComponent('animation', {
    */
   updateConfig: function () {
     var propType;
+
     // Route config type.
     propType = getPropertyType(this.el, this.data.property);
     if (isRawProperty(this.data) && this.data.type === TYPE_COLOR) {
@@ -513,15 +513,6 @@ function getPropertyType (el, property) {
   var propertyName;
 
   split = property.split('.');
-  // Object3D.
-  if (split[0] === 'object3D' && !split[2]) {
-    if (split[1] === 'position' ||
-        split[1] === 'rotation' ||
-        split[1] === 'scale') {
-      return 'vec3';
-    }
-  }
-
   componentName = split[0];
   propertyName = split[1];
   component = el.components[componentName] || components[componentName];

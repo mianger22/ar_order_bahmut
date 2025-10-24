@@ -1,6 +1,6 @@
-/* global XRPlane */
-import * as THREE from 'three';
-import { registerComponent as register } from '../../core/component.js';
+/* global XRPlane, XRMesh */
+var register = require('../../core/component').registerComponent;
+var THREE = require('../../lib/three');
 
 /**
  * Real World Meshing.
@@ -9,11 +9,11 @@ import { registerComponent as register } from '../../core/component.js';
  * It requires a browser with support for the WebXR Mesh and Plane detection modules.
  *
  */
-export var Component = register('real-world-meshing', {
+module.exports.Component = register('real-world-meshing', {
   schema: {
     filterLabels: {type: 'array'},
     meshesEnabled: {default: true},
-    meshMixin: {default: ''},
+    meshMixin: {default: true},
     planesEnabled: {default: true},
     planeMixin: {default: ''}
   },
@@ -46,6 +46,7 @@ export var Component = register('real-world-meshing', {
     var detectedMeshes;
     var detectedPlanes;
     var sceneEl = this.el;
+    var xrManager = sceneEl.renderer.xr;
     var frame;
     var meshEntities = this.meshEntities;
     var present = false;

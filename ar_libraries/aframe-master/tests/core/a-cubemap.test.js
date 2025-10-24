@@ -1,4 +1,4 @@
-/* global assert, setup, suite, test */
+/* global assert, process, setup, suite, test */
 suite('a-cubemap', function () {
   suite('valid cubemap', function () {
     // Due to limitations in karma / mocha, this test does not perfectly simulate

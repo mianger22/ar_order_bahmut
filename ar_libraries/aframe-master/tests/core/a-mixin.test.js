@@ -1,6 +1,7 @@
 /* global assert, setup, suite, test */
-import * as helpers from '../helpers.js';
-import { components, registerComponent } from 'core/component.js';
+var helpers = require('../helpers');
+var components = require('index').components;
+var registerComponent = require('index').registerComponent;
 
 suite('a-mixin', function () {
   var assetsEl;
@@ -28,7 +29,7 @@ suite('a-mixin', function () {
     mixinEl.addEventListener('loaded', function () {
       assert.equal(el.getAttribute('geometry').primitive, 'ring');
       mixinEl.setAttribute('geometry', 'primitive: circle');
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.equal(el.getAttribute('geometry').primitive, 'circle');
         done();
       });

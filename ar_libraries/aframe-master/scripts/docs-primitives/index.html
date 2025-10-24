@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<script src="http://localhost:8080/dist/aframe-master.js"></script>
+<script src="http://localhost:9000/build/aframe.js"></script>
 </head>
 <body>
 <script>
@@ -18,11 +18,19 @@ geometryNames.forEach(function (geometryName) {
 
   var str = [];
   str.push('## Attributes\n');
-  
-  // Header
+  str.push('| Attribute | Component Mapping | Default Value |');
+  str.push('| -------- | ----------------- | ------------- |');
+
+  // Compile geometry mappings.
+  var geometry = geometries[geometryName];
   var rows = {};
-  rows[0] = ['Attribute', 'Component Mapping', 'Default Value'];
-  rows[1] = ['--------', '-----------------', '-------------'];
+  Object.keys(geometry.schema).forEach(function addMapping (property) {
+    rows[unCamelCase(property)] = '|' + [
+      unCamelCase(property),
+      'geometry.' + property,
+      geometry.schema[property].stringify(geometry.schema[property].default)
+    ].join('|') + '|';
+  });
 
   // Compile mesh mixin mappings.
   Object.keys(meshMappings).forEach(function addMapping (attribute) {
@@ -30,36 +38,18 @@ geometryNames.forEach(function (geometryName) {
     var property = mapping.split('.')[1];
     var materialProp = AFRAME.components.material.schema[property] ||
                        AFRAME.shaders.standard.schema[property];
-    rows[attribute] = [
+    rows[attribute] = '|' + [
       attribute,
       mapping,
       (materialProp.default === undefined || materialProp.default === null ||
        materialProp.default === '') ?
         'None' : materialProp.stringify(materialProp.default)
-    ];
-  });
-
-  // Compile geometry mappings.
-  var geometry = geometries[geometryName];
-  Object.keys(geometry.schema).forEach(function addMapping (property) {
-    rows[unCamelCase(property)] = [
-      unCamelCase(property),
-      'geometry.' + property,
-      geometry.schema[property].stringify(geometry.schema[property].default)
-    ];
-  });
-  
-  // Measure required length for each column
-  var cols = [0, 0, 0];
-  Object.values(rows).forEach(function (row) {
-    for(var i = 0; i < cols.length; i++) {
-      cols[i] = Math.max(cols[i], row[i].length);
-    }
+    ].join('|') + '|';
   });
 
   // Append rows.
   Object.keys(rows).sort().forEach(function (attribute) {
-    str.push('| ' + rows[attribute].map((v, i) => v.padEnd(cols[i], ' ')).join(' | ') + ' |');
+    str.push(rows[attribute]);
   });
 
   console.log(str.join('\n'));

@@ -1,9 +1,9 @@
-import { registerComponent } from '../core/component.js';
+var registerComponent = require('../core/component').registerComponent;
 
 /**
  * Visibility component.
  */
-export var Component = registerComponent('visible', {
+module.exports.Component = registerComponent('visible', {
   schema: {default: true},
 
   update: function () {

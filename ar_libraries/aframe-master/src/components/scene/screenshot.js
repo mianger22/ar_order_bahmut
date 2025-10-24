@@ -1,6 +1,6 @@
 /* global ImageData, URL */
-import { registerComponent } from '../../core/component.js';
-import * as THREE from 'three';
+var registerComponent = require('../../core/component').registerComponent;
+var THREE = require('../../lib/three');
 
 var VERTEX_SHADER = [
   'attribute vec3 position;',
@@ -43,7 +43,7 @@ var FRAGMENT_SHADER = [
  * The cube map produced by the CubeCamera is projected on a quad and then rendered to
  * WebGLRenderTarget with an orthographic camera.
  */
-export var Component = registerComponent('screenshot', {
+module.exports.Component = registerComponent('screenshot', {
   schema: {
     width: {default: 4096},
     height: {default: 2048},

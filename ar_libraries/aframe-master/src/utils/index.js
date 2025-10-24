@@ -1,42 +1,46 @@
 /* global location */
 
 /* Centralized place to reference utilities since utils is exposed to the user. */
-import debug from './debug.js';
-import deepAssign from 'deep-assign';
-import * as device from './device.js';
-import * as objectPool from './object-pool.js';
+var debug = require('./debug');
+var deepAssign = require('deep-assign');
+var device = require('./device');
+var objectPool = require('./object-pool');
 
 var warn = debug('utils:warn');
 
 /** @deprecated */
-export function bind (fn) {
+module.exports.bind = function (fn) {
   return fn.bind.apply(fn, Array.prototype.slice.call(arguments, 1));
-}
-export * as coordinates from './coordinates.js';
-export { default as debug } from './debug.js';
-export * as device from './device.js';
-export * as entity from './entity.js';
-export { default as forceCanvasResizeSafariMobile } from './forceCanvasResizeSafariMobile.js';
-export * as material from './material.js';
-export * as objectPool from './object-pool.js';
-export { split } from './split.js';
-export * as styleParser from './styleParser.js';
-export * as trackedControls from './tracked-controls.js';
+};
+module.exports.coordinates = require('./coordinates');
+module.exports.debug = debug;
+module.exports.device = device;
+module.exports.entity = require('./entity');
+module.exports.forceCanvasResizeSafariMobile = require('./forceCanvasResizeSafariMobile');
+module.exports.material = require('./material');
+module.exports.objectPool = objectPool;
+module.exports.split = require('./split').split;
+module.exports.styleParser = require('./styleParser');
+module.exports.trackedControls = require('./tracked-controls');
 
-export function checkHeadsetConnected () {
+module.exports.checkHeadsetConnected = function () {
   warn('`utils.checkHeadsetConnected` has moved to `utils.device.checkHeadsetConnected`');
   return device.checkHeadsetConnected(arguments);
-}
-
-export function isIOS () {
+};
+module.exports.isGearVR = module.exports.device.isGearVR = function () {
+  warn('`utils.isGearVR` has been deprecated, use `utils.device.isMobileVR`');
+};
+module.exports.isIOS = function () {
   warn('`utils.isIOS` has moved to `utils.device.isIOS`');
   return device.isIOS(arguments);
-}
-
-export function isMobile () {
+};
+module.exports.isOculusGo = module.exports.device.isOculusGo = function () {
+  warn('`utils.isOculusGo` has been deprecated, use `utils.device.isMobileVR`');
+};
+module.exports.isMobile = function () {
   warn('`utils.isMobile has moved to `utils.device.isMobile`');
   return device.isMobile(arguments);
-}
+};
 
 /**
  * Returns throttle function that gets called at most once every interval.
@@ -46,7 +50,7 @@ export function isMobile () {
  * @param {object} optionalContext - If given, bind function to throttle to this context.
  * @returns {function} Throttled function.
  */
-export function throttle (functionToThrottle, minimumInterval, optionalContext) {
+module.exports.throttle = function (functionToThrottle, minimumInterval, optionalContext) {
   var lastTime;
   if (optionalContext) {
     functionToThrottle = functionToThrottle.bind(optionalContext);
@@ -59,7 +63,7 @@ export function throttle (functionToThrottle, minimumInterval, optionalContext) 
       functionToThrottle.apply(null, arguments);
     }
   };
-}
+};
 
 /**
  * Returns throttle function that gets called at most once every interval.
@@ -79,7 +83,7 @@ export function throttle (functionToThrottle, minimumInterval, optionalContext) 
  * @param {object} optionalContext - If given, bind function to throttle to this context.
  * @returns {function} Throttled function.
  */
-export function throttleLeadingAndTrailing (functionToThrottle, minimumInterval, optionalContext) {
+module.exports.throttleLeadingAndTrailing = function (functionToThrottle, minimumInterval, optionalContext) {
   var lastTime;
   var deferTimer;
   if (optionalContext) {
@@ -111,7 +115,7 @@ export function throttleLeadingAndTrailing (functionToThrottle, minimumInterval,
       args = arguments;
     }
   };
-}
+};
 
 /**
  * Returns throttle function that gets called at most once every interval.
@@ -122,7 +126,7 @@ export function throttleLeadingAndTrailing (functionToThrottle, minimumInterval,
  * @param {object} optionalContext - If given, bind function to throttle to this context.
  * @returns {function} Throttled function.
  */
-export function throttleTick (functionToThrottle, minimumInterval, optionalContext) {
+module.exports.throttleTick = function (functionToThrottle, minimumInterval, optionalContext) {
   var lastTime;
   if (optionalContext) {
     functionToThrottle = functionToThrottle.bind(optionalContext);
@@ -134,17 +138,17 @@ export function throttleTick (functionToThrottle, minimumInterval, optionalConte
       functionToThrottle(time, sinceLastTime);
     }
   };
-}
+};
 
 /**
  * Returns debounce function that gets called only once after a set of repeated calls.
  *
- * @param {function} func - function to debounce
+ * @param {function} functionToDebounce
  * @param {number} wait - Time to wait for repeated function calls (milliseconds).
  * @param {boolean} immediate - Calls the function immediately regardless of if it should be waiting.
  * @returns {function} Debounced function.
  */
-export function debounce (func, wait, immediate) {
+module.exports.debounce = function (func, wait, immediate) {
   var timeout;
   return function () {
     var context = this;
@@ -158,7 +162,7 @@ export function debounce (func, wait, immediate) {
     timeout = setTimeout(later, wait);
     if (callNow) func.apply(context, args);
   };
-}
+};
 
 /**
  * Mix the properties of source object(s) into a destination object.
@@ -166,12 +170,12 @@ export function debounce (func, wait, immediate) {
  * @param  {object} dest - The object to which properties will be copied.
  * @param  {...object} source - The object(s) from which properties will be copied.
  */
-export var extend = Object.assign;
-export var extendDeep = deepAssign;
+module.exports.extend = Object.assign;
+module.exports.extendDeep = deepAssign;
 
-export function clone (obj) {
+module.exports.clone = function (obj) {
   return JSON.parse(JSON.stringify(obj));
-}
+};
 
 /**
  * Checks if two values are equal.
@@ -183,7 +187,7 @@ export function clone (obj) {
  * @param {object} b - Second object.
  * @returns {boolean} Whether two objects are deeply equal.
  */
-export var deepEqual = (function () {
+var deepEqual = (function () {
   var arrayPool = objectPool.createPool(function () { return []; });
 
   return function (a, b) {
@@ -239,6 +243,7 @@ export var deepEqual = (function () {
     return true;
   };
 })();
+module.exports.deepEqual = deepEqual;
 
 /**
  * Computes the difference between two objects.
@@ -249,7 +254,7 @@ export var deepEqual = (function () {
  *   Difference object where set of keys note which values were not equal, and values are
  *   `b`'s values.
  */
-export var diff = (function () {
+module.exports.diff = (function () {
   var keys = [];
 
   return function (a, b, targetObject) {
@@ -294,37 +299,37 @@ export var diff = (function () {
 /**
  * Returns whether we should capture this keyboard event for keyboard shortcuts.
  * @param {Event} event Event object.
- * @returns {boolean} Whether the key event should be captured.
+ * @returns {Boolean} Whether the key event should be captured.
  */
-export function shouldCaptureKeyEvent (event) {
+module.exports.shouldCaptureKeyEvent = function (event) {
   if (event.metaKey) { return false; }
   return document.activeElement === document.body;
-}
+};
 
 /**
  * Splits a string into an array based on a delimiter.
  *
- * @param   {string} [str='']        Source string
- * @param   {string} [delimiter=' '] Delimiter to use
- * @returns {string[]}               Array of delimited strings
+ * @param   {string=} [str='']        Source string
+ * @param   {string=} [delimiter=' '] Delimiter to use
+ * @returns {array}                   Array of delimited strings
  */
-export function splitString (str, delimiter) {
+module.exports.splitString = function (str, delimiter) {
   if (typeof delimiter === 'undefined') { delimiter = ' '; }
   // First collapse the whitespace (or whatever the delimiter is).
   var regex = new RegExp(delimiter, 'g');
   str = (str || '').replace(regex, delimiter);
   // Then split.
   return str.split(delimiter);
-}
+};
 
 /**
  * Extracts data from the element given an object that contains expected keys.
  *
- * @param {Element} el - Source element.
- * @param {object} [defaults={}] - Object of default key-value pairs.
- * @returns {object}
+ * @param {Element} Source element.
+ * @param {Object} [defaults={}] Object of default key-value pairs.
+ * @returns {Object}
  */
-export function getElData (el, defaults) {
+module.exports.getElData = function (el, defaults) {
   defaults = defaults || {};
   var data = {};
   Object.keys(defaults).forEach(copyAttribute);
@@ -334,33 +339,33 @@ export function getElData (el, defaults) {
     }
   }
   return data;
-}
+};
 
 /**
  * Retrieves querystring value.
- * @param {string} name Name of querystring key.
- * @returns {string} Value
+ * @param  {String} name Name of querystring key.
+ * @return {String}      Value
  */
-export function getUrlParameter (name) {
+module.exports.getUrlParameter = function (name) {
   // eslint-disable-next-line no-useless-escape
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
   var results = regex.exec(location.search);
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
+};
 
 /**
  * Detects whether context is within iframe.
  */
-export function isIframed () {
+module.exports.isIframed = function () {
   return window.top !== window.self;
-}
+};
 
 /**
  * Finds all elements under the element that have the isScene
  * property set to true
  */
-export function findAllScenes (el) {
+module.exports.findAllScenes = function (el) {
   var matchingElements = [];
   var allElements = el.getElementsByTagName('*');
   for (var i = 0, n = allElements.length; i < n; i++) {
@@ -370,7 +375,7 @@ export function findAllScenes (el) {
     }
   }
   return matchingElements;
-}
+};
 
 // Must be at bottom to avoid circular dependency.
-export * as srcLoader from './src-loader.js';
+module.exports.srcLoader = require('./src-loader');

@@ -1,6 +1,6 @@
-/* global assert, setup, suite, test */
-import { entityFactory } from '../helpers.js';
-import THREE from 'lib/three.js';
+/* global assert, process, setup, suite, test */
+var entityFactory = require('../helpers').entityFactory;
+var THREE = require('index').THREE;
 
 suite('phong material', function () {
   setup(function (done) {
@@ -98,18 +98,18 @@ suite('phong material', function () {
     { dataName: 'ambientOcclusionMap', materialName: 'aoMap' },
     { dataName: 'bumpMap', materialName: 'bumpMap' }
   ].forEach(function (names) {
-    test(`can unset ${names.dataName}`, function (done) {
-      var el = this.el;
-      var imageUrl = 'base/tests/assets/test.png';
-      assert.isNull(el.getObject3D('mesh').material[names.materialName]);
-      el.setAttribute('material', names.dataName, `url(${imageUrl})`);
-      el.addEventListener('materialtextureloaded', function (evt) {
-        assert.equal(el.getObject3D('mesh').material[names.materialName], evt.detail.texture);
-        el.setAttribute('material', names.dataName, '');
+      test(`can unset ${names.dataName}`, function (done) {
+        var el = this.el;
+        var imageUrl = 'base/tests/assets/test.png';
         assert.isNull(el.getObject3D('mesh').material[names.materialName]);
-        done();
+        el.setAttribute('material', names.dataName, `url(${imageUrl})`);
+        el.addEventListener('materialtextureloaded', function (evt) {
+          assert.equal(el.getObject3D('mesh').material[names.materialName], evt.detail.texture);
+          el.setAttribute('material', names.dataName, '');
+          assert.isNull(el.getObject3D('mesh').material[names.materialName]);
+          done();
+        });
       });
-    });
   });
 
   test('can use spherical env maps', function (done) {

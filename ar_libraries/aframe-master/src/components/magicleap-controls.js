@@ -1,6 +1,9 @@
-import { registerComponent } from '../core/component.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
+
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
 
 // See Profiles Registry:
 // https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/registry
@@ -8,6 +11,7 @@ import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from
 var GAMEPAD_ID_PREFIX = 'magicleap';
 var GAMEPAD_ID_SUFFIX = '-one';
 var GAMEPAD_ID_COMPOSITE = GAMEPAD_ID_PREFIX + GAMEPAD_ID_SUFFIX;
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var MAGICLEAP_CONTROLLER_MODEL_GLB_URL = AFRAME_CDN_ROOT + 'controllers/magicleap/magicleap-one-controller.glb';
 
 /**
@@ -32,10 +36,11 @@ var INPUT_MAPPING_WEBXR = {
  * buttons: trigger, grip, touchpad, and menu.
  * Load a controller model.
  */
-export var Component = registerComponent('magicleap-controls', {
+module.exports.Component = registerComponent('magicleap-controls', {
   schema: {
     hand: {default: 'none'},
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'}
   },
 
   mapping: INPUT_MAPPING_WEBXR,
@@ -43,6 +48,7 @@ export var Component = registerComponent('magicleap-controls', {
   init: function () {
     var self = this;
     this.controllerPresent = false;
+    this.lastControllerCheck = 0;
     this.onButtonChanged = this.onButtonChanged.bind(this);
     this.onButtonDown = function (evt) { onButtonEvent(evt.detail.id, 'down', self); };
     this.onButtonUp = function (evt) { onButtonEvent(evt.detail.id, 'up', self); };
@@ -114,7 +120,8 @@ export var Component = registerComponent('magicleap-controls', {
       // TODO: verify expected behavior between reserved prefixes.
       idPrefix: GAMEPAD_ID_COMPOSITE,
       hand: data.hand,
-      controller: this.controllerIndex
+      controller: this.controllerIndex,
+      orientationOffset: data.orientationOffset
     });
 
     // Load model.

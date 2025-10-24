@@ -1,12 +1,34 @@
-import { registerComponent } from '../core/component.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
 
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
+
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var VIVE_CONTROLLER_MODEL_OBJ_URL = AFRAME_CDN_ROOT + 'controllers/vive/vr_controller_vive.obj';
 var VIVE_CONTROLLER_MODEL_OBJ_MTL = AFRAME_CDN_ROOT + 'controllers/vive/vr_controller_vive.mtl';
 
-// Prefix for HTC Vive controllers.
-var GAMEPAD_ID_PREFIX = 'htc-vive';
+var isWebXRAvailable = require('../utils/').device.isWebXRAvailable;
+
+var GAMEPAD_ID_WEBXR = 'htc-vive';
+var GAMEPAD_ID_WEBVR = 'OpenVR ';
+
+// Prefix for HTC Vive Controllers.
+var GAMEPAD_ID_PREFIX = isWebXRAvailable ? GAMEPAD_ID_WEBXR : GAMEPAD_ID_WEBVR;
+
+/**
+ * Button IDs:
+ * 0 - trackpad
+ * 1 - trigger (intensity value from 0.5 to 1)
+ * 2 - grip
+ * 3 - menu (dispatch but better for menu options)
+ * 4 - system (never dispatched on this layer)
+ */
+var INPUT_MAPPING_WEBVR = {
+  axes: {trackpad: [0, 1]},
+  buttons: ['trackpad', 'trigger', 'grip', 'menu', 'system']
+};
 
 /**
  * Button IDs:
@@ -21,10 +43,12 @@ var GAMEPAD_ID_PREFIX = 'htc-vive';
  * 1 - touchpad y axis
  * Reference: https://github.com/immersive-web/webxr-input-profiles/blob/master/packages/registry/profiles/htc/htc-vive.json
  */
-var INPUT_MAPPING = {
+var INPUT_MAPPING_WEBXR = {
   axes: {touchpad: [0, 1]},
   buttons: ['trigger', 'grip', 'touchpad', 'none']
 };
+
+var INPUT_MAPPING = isWebXRAvailable ? INPUT_MAPPING_WEBXR : INPUT_MAPPING_WEBVR;
 
 /**
  * Vive controls.
@@ -32,12 +56,13 @@ var INPUT_MAPPING = {
  * touchpad, trigger, grip, menu, system
  * Load a controller model and highlight the pressed buttons.
  */
-export var Component = registerComponent('vive-controls', {
+module.exports.Component = registerComponent('vive-controls', {
   schema: {
     hand: {default: 'left'},
     buttonColor: {type: 'color', default: '#FAFAFA'},  // Off-white.
     buttonHighlightColor: {type: 'color', default: '#22D1EE'},  // Light blue.
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'}
   },
 
   after: ['tracked-controls'],
@@ -47,6 +72,7 @@ export var Component = registerComponent('vive-controls', {
   init: function () {
     var self = this;
     this.controllerPresent = false;
+    this.lastControllerCheck = 0;
     this.onButtonChanged = this.onButtonChanged.bind(this);
     this.onButtonDown = function (evt) { onButtonEvent(evt.detail.id, 'down', self); };
     this.onButtonUp = function (evt) { onButtonEvent(evt.detail.id, 'up', self); };
@@ -123,7 +149,8 @@ export var Component = registerComponent('vive-controls', {
     el.setAttribute('tracked-controls', {
       idPrefix: GAMEPAD_ID_PREFIX,
       hand: data.hand,
-      controller: this.controllerIndex
+      controller: this.controllerIndex,
+      orientationOffset: data.orientationOffset
     });
 
     // Load model.

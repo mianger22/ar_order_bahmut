@@ -1,6 +1,6 @@
 /* global assert, setup, suite, test, THREE */
-import { Component } from 'components/text.js';
-import { entityFactory } from '../helpers.js';
+var Component = require('components/text').Component;
+var entityFactory = require('../helpers').entityFactory;
 
 suite('text', function () {
   var component;

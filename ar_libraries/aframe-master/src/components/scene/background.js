@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import { registerComponent as register } from '../../core/component.js';
+/* global THREE */
+var register = require('../../core/component').registerComponent;
 
-export var Component = register('background', {
+module.exports.Component = register('background', {
   schema: {
     color: { type: 'color', default: 'black' },
     transparent: { default: false }

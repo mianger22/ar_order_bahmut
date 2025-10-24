@@ -1,25 +1,25 @@
-import * as coordinates from '../utils/coordinates.js';
-import debug from 'debug';
+var coordinates = require('../utils/coordinates');
+var debug = require('debug');
 
 var warn = debug('core:propertyTypes:warn');
 
-export var propertyTypes = {};
+var propertyTypes = module.exports.propertyTypes = {};
 var nonCharRegex = /[,> .[\]:]/;
 var urlRegex = /url\((.+)\)/;
 
 // Built-in property types.
-registerPropertyType('audio', '', assetParse, assetStringify);
+registerPropertyType('audio', '', assetParse);
 registerPropertyType('array', [], arrayParse, arrayStringify, arrayEquals);
-registerPropertyType('asset', '', assetParse, assetStringify);
+registerPropertyType('asset', '', assetParse);
 registerPropertyType('boolean', false, boolParse);
 registerPropertyType('color', '#FFF');
 registerPropertyType('int', 0, intParse);
 registerPropertyType('number', 0, numberParse);
-registerPropertyType('map', '', assetParse, assetStringify);
-registerPropertyType('model', '', assetParse, assetStringify);
+registerPropertyType('map', '', assetParse);
+registerPropertyType('model', '', assetParse);
 registerPropertyType('selector', null, selectorParse, selectorStringify, defaultEquals, false);
 registerPropertyType('selectorAll', null, selectorAllParse, selectorAllStringify, arrayEquals, false);
-registerPropertyType('src', '', srcParse, assetStringify);
+registerPropertyType('src', '', srcParse);
 registerPropertyType('string', '');
 registerPropertyType('time', 0, intParse);
 registerPropertyType('vec2', {x: 0, y: 0}, vecParse, coordinates.stringify, coordinates.equals);
@@ -31,13 +31,14 @@ registerPropertyType('vec4', {x: 0, y: 0, z: 0, w: 1}, vecParse, coordinates.str
  * `schema.process` will set the property `parse` and `stringify`.
  *
  * @param {string} type - Type name.
- * @param {any} [defaultValue=null] - Default value to use if component does not define default value.
+ * @param [defaultValue=null] -
+ *   Default value to use if component does not define default value.
  * @param {function} [parse=defaultParse] - Parse string function.
  * @param {function} [stringify=defaultStringify] - Stringify to DOM function.
  * @param {function} [equals=defaultEquals] - Equality comparator.
- * @param {boolean} [cacheable=false] - Whether or not the parsed value of a property can be cached.
+ * @param {boolean} [cachable=false] - Whether or not the parsed value of a property can be cached.
  */
-export function registerPropertyType (type, defaultValue, parse, stringify, equals, cacheable) {
+function registerPropertyType (type, defaultValue, parse, stringify, equals, cacheable) {
   if (type in propertyTypes) {
     throw new Error('Property type ' + type + ' is already registered.');
   }
@@ -50,6 +51,7 @@ export function registerPropertyType (type, defaultValue, parse, stringify, equa
     isCacheable: cacheable !== false
   };
 }
+module.exports.registerPropertyType = registerPropertyType;
 
 function arrayParse (value) {
   if (Array.isArray(value)) { return value; }
@@ -117,19 +119,6 @@ function assetParse (value) {
 
   // Non-wrapped url().
   return value;
-}
-
-function assetStringify (value) {
-  if (value.getAttribute) {
-    var id = value.getAttribute('id');
-    if (id) {
-      return '#' + value.getAttribute('id');
-    }
-    // HTMLElement without id can not be stringified, as there is no string assetParse
-    // could convert back to this exact element, using the src attribute instead.
-    return value.getAttribute('src');
-  }
-  return defaultStringify(value);
 }
 
 function defaultParse (value) {
@@ -206,7 +195,7 @@ function vecParse (value, defaultValue, target) {
  * @param defaultVal - Property type default value.
  * @returns {boolean} Whether default value is accurate given the type.
  */
-export function isValidDefaultValue (type, defaultVal) {
+function isValidDefaultValue (type, defaultVal) {
   if (type === 'audio' && typeof defaultVal !== 'string') { return false; }
   if (type === 'array' && !Array.isArray(defaultVal)) { return false; }
   if (type === 'asset' && typeof defaultVal !== 'string') { return false; }
@@ -228,6 +217,7 @@ export function isValidDefaultValue (type, defaultVal) {
   if (type === 'vec4') { return isValidDefaultCoordinate(defaultVal, 4); }
   return true;
 }
+module.exports.isValidDefaultValue = isValidDefaultValue;
 
 /**
  * Checks if default coordinates are valid.
@@ -236,7 +226,7 @@ export function isValidDefaultValue (type, defaultVal) {
  * @param {number} dimensions - 2 for 2D Vector, 3 for 3D vector.
  * @returns {boolean} Whether coordinates are parsed correctly.
  */
-export function isValidDefaultCoordinate (possibleCoordinates, dimensions) {
+function isValidDefaultCoordinate (possibleCoordinates, dimensions) {
   if (possibleCoordinates === null) { return true; }
   if (typeof possibleCoordinates !== 'object') { return false; }
 
@@ -255,3 +245,4 @@ export function isValidDefaultCoordinate (possibleCoordinates, dimensions) {
 
   return true;
 }
+module.exports.isValidDefaultCoordinate = isValidDefaultCoordinate;

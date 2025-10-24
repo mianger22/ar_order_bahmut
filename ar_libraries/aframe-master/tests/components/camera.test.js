@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test */
-import { elFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test */
+var elFactory = require('../helpers').elFactory;
 
 suite('camera', function () {
   var el;

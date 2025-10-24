@@ -1,1 +1,1 @@
-import './pivot.js';
+require('./pivot');

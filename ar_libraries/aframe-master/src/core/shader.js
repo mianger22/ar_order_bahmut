@@ -1,9 +1,10 @@
-import * as THREE from 'three';
-import { process as processSchema } from './schema.js';
-import * as utils from '../utils/index.js';
+var schema = require('./schema');
 
-export var shaders = {};  // Keep track of registered shaders.
-export var shaderNames = [];  // Keep track of the names of registered shaders.
+var processSchema = schema.process;
+var shaders = module.exports.shaders = {};  // Keep track of registered shaders.
+var shaderNames = module.exports.shaderNames = [];  // Keep track of the names of registered shaders.
+var THREE = require('../lib/three');
+var utils = require('../utils');
 
 // A-Frame properties to three.js uniform types.
 var propertyToThreeMapping = {
@@ -25,7 +26,7 @@ var propertyToThreeMapping = {
  * of customized materials.
  *
  */
-export var Shader = function () {};
+var Shader = module.exports.Shader = function () {};
 
 Shader.prototype = {
   /**
@@ -148,7 +149,7 @@ Shader.prototype = {
  * @param {object} definition - shader property and methods.
  * @returns {object} Shader.
  */
-export function registerShader (name, definition) {
+module.exports.registerShader = function (name, definition) {
   var NewShader;
   var proto = {};
 
@@ -173,4 +174,4 @@ export function registerShader (name, definition) {
   };
   shaderNames.push(name);
   return NewShader;
-}
+};

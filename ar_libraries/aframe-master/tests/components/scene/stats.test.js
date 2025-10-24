@@ -1,6 +1,8 @@
 /* global assert, setup, suite, teardown, test */
+var utils = require('utils/');
+
 suite('stats', function () {
-  var originalLocationUrl = window.location.toString();
+  var originalGetUrlParameter = utils.getUrlParameter;
 
   setup(function (done) {
     var el = this.sceneEl = document.createElement('a-scene');
@@ -9,14 +11,14 @@ suite('stats', function () {
 
     el.addEventListener('loaded', function () { done(); });
 
-    window.history.replaceState(null, '', originalLocationUrl + '?stats=false');
+    utils.getUrlParameter = function () { return 'false'; };
   });
 
   teardown(function () {
     var el = this.sceneEl;
     el.parentNode.removeChild(el);
 
-    window.history.replaceState(null, '', originalLocationUrl);
+    utils.getUrlParameter = originalGetUrlParameter;
   });
 
   test('Stats are not created when query string "stats" is "false"', function () {

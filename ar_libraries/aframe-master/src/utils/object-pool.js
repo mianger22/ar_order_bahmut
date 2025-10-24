@@ -10,7 +10,7 @@ function defaultObjectFactory () { return {}; }
 /**
  * Create a new pool.
  */
-export function createPool (objectFactory) {
+module.exports.createPool = function createPool (objectFactory) {
   var objPool = [];
   var nextFreeSlot = null;  // Pool location to look for a free object to use.
 
@@ -68,15 +68,16 @@ export function createPool (objectFactory) {
     size: size,
     use: use
   };
-}
+};
 
-export function clearObject (obj) {
+function clearObject (obj) {
   var key;
   if (!obj || obj.constructor !== Object) { return; }
   for (key in obj) { obj[key] = undefined; }
 }
+module.exports.clearObject = clearObject;
 
-export function removeUnusedKeys (obj, schema) {
+function removeUnusedKeys (obj, schema) {
   var key;
   if (!obj || obj.constructor !== Object) { return; }
   for (key in obj) {
@@ -85,3 +86,4 @@ export function removeUnusedKeys (obj, schema) {
     }
   }
 }
+module.exports.removeUnusedKeys = removeUnusedKeys;

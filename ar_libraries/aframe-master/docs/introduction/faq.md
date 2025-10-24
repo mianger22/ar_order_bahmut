@@ -17,8 +17,8 @@ order: 14
 
 ## How is A-Frame's performance?
 
-[a-painter]: https://github.com/aframevr/a-painter/
-[tiltbrush]: https://github.com/icosa-foundation/open-brush
+[a-painter]: https://blog.mozvr.com/a-painter
+[tiltbrush]: https://www.tiltbrush.com/
 
 A-Frame can achieve native-like latency and framerate with proper browsers
 (e.g., Firefox with WebVR). For example, [A-Painter][a-painter] is [Tilt
@@ -62,7 +62,7 @@ use of resources, we will need deeper understanding about 3D graphics.  See
 [release]: https://github.com/aframevr/aframe/releases
 [webxr]: https://immersive-web.github.io/webxr/
 
-If you are using A-Frame 1.7.1 or older you probably need to update to the [latest release][release]. Browsers are migrating to the [WebXR standard][webxr] and old versions might no longer work.
+If you are using A-Frame 1.6.0 or older you probably need to update to the [latest release][release]. Browsers are migrating to the [WebXR standard][webxr] and old versions might no longer work.
 
 You also have to serve your content over HTTPS. The WebXR API won't be available over HTTP.
 
@@ -143,14 +143,12 @@ is possible to overlay an `<iframe>` on top of the canvas, the `<iframe>` will
 not display in VR nor can it integrate with the scene.
 
 [html-shader]: https://github.com/mayognaise/aframe-html-shader/
-[html-mesh]: https://github.com/AdaRoseCannon/aframe-htmlmesh
 
 Though, we can render basic HTML and CSS as a texture without interactivity.
 We can paint to a `<canvas>` and use the canvas as source for a texture. There
 are components in the ecosystem that enable this:
 
 - [HTML Shader][html-shader]
-- [HTML Mesh][html-mesh]
 
 ## Which 3D model formats work?
 
@@ -167,6 +165,12 @@ component][whygltf].
 
 [Wavefront (`.obj`)][obj] is also a well-known format but has some limitations
 like the lack of animation and vertex color support.
+
+There are also components in the ecosystem for loading other formats:
+
+- [`.PLY` models](https://github.com/donmccurdy/aframe-extras/blob/master/src/loaders/ply-model.js)
+- [three.js `.JSON` Object](https://github.com/donmccurdy/aframe-extras/blob/master/src/loaders/json-model.js)
+- [three.js `.JSON` Scene](https://github.com/donmccurdy/aframe-extras/blob/master/src/loaders/object-model.js)
 
 Below are a couple basic examples for using models:
 
@@ -214,15 +218,13 @@ to serve, but that is against their terms of service.
 
 ## Can I add links to my scene?
 
-[link-traversal-example]: https://aframe.io/aframe/examples/showcase/link-traversal/
-
 Browsers provide the ability to go from WebVR page to WebVR page via the
 `vrdisplayactivate` event described in the WebVR specification. Currently, not
 all browsers implement this. Firefox with WebVR implements this. A link
-component for link traversal ([example][link-traversal-example]) was released with A-Frame 0.6.0:
+component for link traversal was released with A-Frame 0.6.0:
 
 ```html
-<a-entity link="on: click; href: https://aframe.io/aframe/examples/docs/aincraft/"></a-entity>
+<a-entity link="on: click; href: https://aframe-aincraft.glitch.me"></a-entity>
 ```
 
 ## Can I prevent the camera from going through obstacles?
@@ -231,7 +233,7 @@ This depends on what devices you plan to support and how you allow users to
 navigate your scene. For most VR experiences, follow best practices and only
 move the camera proportionately to the user's motion.
 
-[teleport]: https://github.com/jure/aframe-blink-controls
+[teleport]: https://github.com/fernandojsg/aframe-teleport-controls
 
 Don't block the camera if the user steps forward in a room-scale VR space. For
 most VR applications it's better to do locomotion with methods such as using
@@ -239,7 +241,7 @@ most VR applications it's better to do locomotion with methods such as using
 of the way or not require much movement, or explore more creative ways of
 moving users through the world.
 
-[physics]: https://github.com/c-frame/aframe-physics-system
+[physics]: https://github.com/donmccurdy/aframe-physics-system
 
 For non-VR desktop experiences with a gamepad or keyboard controls or for VR
 scenes where the camera is inside a vehicle, you can add a [physics
@@ -283,34 +285,16 @@ Read [*Where to Find Components*][finding] for more information.
 ## Does A-Frame support `X` library or framework?
 
 A-Frame is built on top of the DOM so most libraries and frameworks work
-including jQuery, HTMX, React, SolidJS, Vue and Svelte.
+including:
 
-Some meta frameworks like TanStack Start and SolidStart hide the `index.html`,
-so you may encounter issues adding additional script tags and template tags (for
-Networked-Aframe).
-
-We advice you to use a template for your framework that still has an `index.html`
-you can edit and render the UI to a specific div while keeping your `<a-scene>`
-directly in `index.html`. That way you can easily follow A-Frame examples.
-If you're creating a complex app with several routes and only specific routes
-render an A-Frame scene, you'll want to add a router library and render
-`<a-scene>` via a component in your framework.
-Reactive frameworks like SolidJS and latest versions of Vue and Svelte are
-well suited for this because they doesn't do unnecessary computation to check
-if something needs to be updated. You can do that also in React but be sure to wrap
-your Scene and UI components with React.memo and proper usage of useMemo/useCallback
-or better enable the React Compiler that does this for you to avoid any performance
-issues.
-
-The Vite build tool has templates for most of the popular frameworks.
-You can follow the [Vite Guide](https://vite.dev/guide/) to create a new project
-and then add the aframe `<script>` tag in the head and the `<a-scene>` tag in
-the body.
-
-For SolidJS and Networked-Aframe, you have a
-[dedicated tutorial](https://aframe.wiki/en/#!pages/solidjs.md) explaining how
-to set up a project, and using a router to render the scene for a specific
-route. For React, it should be very similar.
+- [Vue.js](https://github.com/frederic-schwarz/aframe-vuejs-3dio)
+- [Preact](https://github.com/aframevr/aframe-react#using-with-preact)
+- [D3.js](http://blockbuilder.org/search#text=aframe)
+- [React](https://github.com/aframevr/aframe-react)
+- [Angular](https://stackoverflow.com/questions/46464103/various-errors-when-attempting-to-integrate-aframe-into-angular2-project-esp-wi)
+- jQuery
+- Ember.js
+- Meteor
 
 ## Which headsets, browsers, devices, and platforms does A-Frame support?
 
@@ -358,10 +342,7 @@ Phones with Adreno 300 series GPUs are notoriously problematic. Set [renderer pr
 
 ## Can I use A-Frame offline or self hosted?
 
-Using A-Frame online sometimes is not possible or inconvenient, for instance when traveling or during public events with poor Internet connectivity. A-Frame is mostly self-contained so including the build (aframe.min.js) in your project will be sufficient in many cases. Some specific parts are lazy loaded and only fetched when used. This is for example the case of the fonts for the text component and the 3D models for controllers. In order to make an A-Frame build work either offline or without relying on A-Frame hosting infrastructure (typically cdn.aframe.io), you can monitor network requests on your browser console. This will show precisely what assets are being loaded and thus as required for your specific experience. Fonts can be found via FONT_BASE_URL in the whereas controllers via MODEL_URLS. Both can be modified in the source and included in your own [custom build](https://github.com/aframevr/aframe#generating-builds).
-
-Alternatively one can set `window.AFRAME_CDN_ROOT='./assets/'` before loading AFrame. That directory can contain [files from the assets repository](https://github.com/aframevr/assets), in particular the `./fonts` and `./controllers` directories. Note that not all files are required, for example for controllers only the `.glb` files are required, others can thus be safely removed. Once again it is good to check with the browser network inspector that all needed files are loading properly locally before going truly offline.
-
+Using A-Frame online sometimes is not possible or inconvenient, like for instance when traveling or during public events with poor Internet connectivity. A-Frame is mostly self-contained so including the build (aframe.min.js) in your project will be sufficient in many cases. Some specific parts are lazy loaded and only fetched when used. This is for example the case of the fonts for the text component and the 3D models for controllers. In order to make an A-Frame build work either offline or without relying on A-Frame hosting infrastructure (typically cdn.aframe.io), you can monitor network requests on your browser console. This will show precisely what assets are being loaded and thus as required for your specific experience. Fonts can be found via FONT_BASE_URL in the whereas controllers via MODEL_URLS. Both can be modified in the source and included in your own [custom build](https://github.com/aframevr/aframe#generating-builds)
 
 ## Can I load A-Frame as an ES module?
 
@@ -372,7 +353,7 @@ You can load A-Frame as an ES module using a [side effect import](https://develo
   <script type="importmap">
     {
         "imports": {
-            "aframe": "https://aframe.io/releases/1.7.1/aframe.min.js",
+            "aframe": "https://aframe.io/releases/1.6.0/aframe.min.js",
         }
     }
   </script>
@@ -395,45 +376,6 @@ await import('aframe');
 
 window.AFRAME.ready();
 ```
-
-Since version 1.7.1, A-Frame ships an ES module bundle without the three dependency.
-Developers can import from `three` and `three/addons` and avoid the
-"Multiple instances of Three.js being imported." warning. Add the three dependency in the importmap like the example below. 
-Make sure the three and A-Frame versions are compatible. See browser console (or package.json) to see what THREE version A-Frame ships with by default.
-
-```HTML
-<head>
-  <script type="importmap">
-    {
-      "imports": {
-        "aframe": "https://aframe.io/releases/1.7.1/aframe.module.min.js",
-        "three": "https://cdn.jsdelivr.net/npm/super-three@0.173.5/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/super-three@0.173.5/examples/jsm/",
-        "aframe-extras/controls": "https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.x/dist/aframe-extras.controls.min.js"
-      }
-    }
-  </script>
-  <script type="module">
-    import AFRAME from "aframe";
-    // AFRAME and THREE variables are available globally, the imported aframe-master.module.min.js bundle basically does:
-    // import * as THREE from "three"
-    // window.THREE = THREE
-    import { TeapotGeometry } from "three/addons/geometries/TeapotGeometry.js"; // This uses the same three instance.
-    AFRAME.registerComponent("teapot", {
-      ...
-    }
-  </script>
-</head>
-```
-
-The [importmap example](https://aframe.io/aframe/examples/boilerplate/importmap/index.html) uses the above code.
-
-## "Multiple instances of Three.js being imported." warning
-
-See `Can I load A-Frame as an ES module?` above.
-
-As a library author of aframe components, be sure to configure your bundler configuration to produce a build with the three dependency declared as external if you're using any `import ... from three` in your code or any addons you import like `import ... from three/addons/...js`.
-You can look at the webpack configuration in the [aframe-extras repository](https://github.com/c-frame/aframe-extras) as an example.
 
 ## What order does A-Frame render objects in?
 

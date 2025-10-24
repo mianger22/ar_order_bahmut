@@ -8,7 +8,8 @@ source_code: src/index.js
 ---
 
 A-Frame exposes its public interface through the `window.AFRAME` browser
-global. This same interface is also exposed when you import aframe (`import AFRAME from 'aframe'`).
+global. This same interface is also exposed if requiring with CommonJS
+(`require('aframe')`).
 
 ## `AFRAME` Properties
 
@@ -47,6 +48,7 @@ global. This same interface is also exposed when you import aframe (`import AFRA
 | Property                     | Description                                  |
 | ----------                   | -------------                                |
 | AFRAME                       | The object described above.                  |
+| hasNativeWebVRImplementation | Whether the client has native WebVR support. |
 
 ## Requiring `AFRAME` in a Node.js Environment
 
@@ -55,7 +57,7 @@ It is possible to run A-Frame in [Node.js](https://nodejs.org/en/about) to get a
 ```js
 const cleanup = require('jsdom-global')();
 global.customElements = { define: function () {} };
-const aframe = require('aframe');
+var aframe = require('aframe/src');
 console.log(aframe.version);
 cleanup();
 ```

@@ -1,11 +1,32 @@
-import { registerComponent } from '../core/component.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
 
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
+var isWebXRAvailable = require('../utils/').device.isWebXRAvailable;
+
+var GAMEPAD_ID_WEBXR = 'oculus-go';
+var GAMEPAD_ID_WEBVR = 'Oculus Go';
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var OCULUS_GO_CONTROLLER_MODEL_URL = AFRAME_CDN_ROOT + 'controllers/oculus/go/oculus-go-controller.gltf';
 
 // Prefix for Gen1 and Gen2 Oculus Touch Controllers.
-var GAMEPAD_ID_PREFIX = 'oculus-go';
+var GAMEPAD_ID_PREFIX = isWebXRAvailable ? GAMEPAD_ID_WEBXR : GAMEPAD_ID_WEBVR;
+
+/**
+ * Button indices:
+ * 0 - trackpad
+ * 1 - trigger
+ *
+ * Axis:
+ * 0 - trackpad x
+ * 1 - trackpad y
+ */
+var INPUT_MAPPING_WEBVR = {
+  axes: {trackpad: [0, 1]},
+  buttons: ['trackpad', 'trigger']
+};
 
 /**
  * Button indices:
@@ -18,24 +39,28 @@ var GAMEPAD_ID_PREFIX = 'oculus-go';
  * 1 - touchpad y
  * Reference: https://github.com/immersive-web/webxr-input-profiles/blob/master/packages/registry/profiles/oculus/oculus-go.json
  */
-var INPUT_MAPPING = {
+var INPUT_MAPPING_WEBXR = {
   axes: {touchpad: [0, 1]},
   buttons: ['trigger', 'none', 'touchpad']
 };
 
+var INPUT_MAPPING = isWebXRAvailable ? INPUT_MAPPING_WEBXR : INPUT_MAPPING_WEBVR;
+
 /**
  * Oculus Go controls.
  * Interface with Oculus Go controller and map Gamepad events to
- * controller buttons: trigger, touchpad
+ * controller buttons: trackpad, trigger
  * Load a controller model and highlight the pressed buttons.
  */
-export var Component = registerComponent('oculus-go-controls', {
+module.exports.Component = registerComponent('oculus-go-controls', {
   schema: {
     hand: {default: ''},  // This informs the degenerate arm model.
     buttonColor: {type: 'color', default: '#FFFFFF'},
     buttonTouchedColor: {type: 'color', default: '#BBBBBB'},
     buttonHighlightColor: {type: 'color', default: '#7A7A7A'},
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'},
+    armModel: {default: true}
   },
 
   mapping: INPUT_MAPPING,
@@ -56,6 +81,7 @@ export var Component = registerComponent('oculus-go-controls', {
     this.onButtonTouchStart = function (evt) { onButtonEvent(evt.detail.id, 'touchstart', self); };
     this.onButtonTouchEnd = function (evt) { onButtonEvent(evt.detail.id, 'touchend', self); };
     this.controllerPresent = false;
+    this.lastControllerCheck = 0;
     this.bindMethods();
   },
 
@@ -85,7 +111,7 @@ export var Component = registerComponent('oculus-go-controls', {
 
   checkIfControllerPresent: function () {
     checkControllerPresentAndSetup(this, GAMEPAD_ID_PREFIX,
-                                   this.data.hand ? {hand: this.data.hand} : {});
+                                        this.data.hand ? {hand: this.data.hand} : {});
   },
 
   play: function () {
@@ -102,8 +128,10 @@ export var Component = registerComponent('oculus-go-controls', {
     var el = this.el;
     var data = this.data;
     el.setAttribute('tracked-controls', {
+      armModel: data.armModel,
       hand: data.hand,
-      idPrefix: GAMEPAD_ID_PREFIX
+      idPrefix: GAMEPAD_ID_PREFIX,
+      orientationOffset: data.orientationOffset
     });
     if (!this.data.model) { return; }
     this.el.setAttribute('gltf-model', OCULUS_GO_CONTROLLER_MODEL_URL);

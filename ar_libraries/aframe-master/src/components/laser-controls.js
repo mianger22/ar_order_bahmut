@@ -1,5 +1,5 @@
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+var registerComponent = require('../core/component').registerComponent;
+var utils = require('../utils/');
 
 registerComponent('laser-controls', {
   schema: {
@@ -19,7 +19,7 @@ registerComponent('laser-controls', {
     el.setAttribute('hp-mixed-reality-controls', controlsConfiguration);
     el.setAttribute('magicleap-controls', controlsConfiguration);
     el.setAttribute('oculus-go-controls', controlsConfiguration);
-    el.setAttribute('meta-touch-controls', controlsConfiguration);
+    el.setAttribute('oculus-touch-controls', controlsConfiguration);
     el.setAttribute('pico-controls', controlsConfiguration);
     el.setAttribute('valve-index-controls', controlsConfiguration);
     el.setAttribute('vive-controls', controlsConfiguration);
@@ -93,7 +93,7 @@ registerComponent('laser-controls', {
       raycaster: {origin: {x: 0, y: 0.0005, z: 0}}
     },
 
-    'meta-touch-controls': {
+    'oculus-touch-controls': {
       cursor: {downEvents: ['triggerdown'], upEvents: ['triggerup']},
       raycaster: {origin: {x: 0, y: 0, z: 0}}
     },

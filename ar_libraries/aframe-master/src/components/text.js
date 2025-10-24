@@ -1,13 +1,13 @@
-import createTextGeometry from 'three-bmfont-text';
-import loadBMFont from 'load-bmfont';
+var createTextGeometry = require('three-bmfont-text');
+var loadBMFont = require('load-bmfont');
 
-import { registerComponent } from '../core/component.js';
-import { shaders } from '../core/shader.js';
-import * as THREE from 'three';
-import * as utils from '../utils/index.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
+var registerComponent = require('../core/component').registerComponent;
+var coreShader = require('../core/shader');
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 
 var error = utils.debug('components:text:error');
+var shaders = coreShader.shaders;
 var warn = utils.debug('components:text:warn');
 
 // 1 to match other A-Frame default widths.
@@ -16,8 +16,9 @@ var DEFAULT_WIDTH = 1;
 // @bryik set anisotropy to 16. Improves look of large amounts of text when viewed from angle.
 var MAX_ANISOTROPY = 16;
 
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var FONT_BASE_URL = AFRAME_CDN_ROOT + 'fonts/';
-export var FONTS = {
+var FONTS = {
   aileronsemibold: FONT_BASE_URL + 'Aileron-Semibold.fnt',
   dejavu: FONT_BASE_URL + 'DejaVu-sdf.fnt',
   exo2bold: FONT_BASE_URL + 'Exo2Bold.fnt',
@@ -30,6 +31,7 @@ export var FONTS = {
 };
 var MSDF_FONTS = ['roboto'];
 var DEFAULT_FONT = 'roboto';
+module.exports.FONTS = FONTS;
 
 var cache = new PromiseCache();
 var fontWidthFactors = {};
@@ -45,7 +47,7 @@ var protocolRe = /^\w+:/;
  * All the stock fonts are for the `sdf` registered shader, an improved version of jam3's
  * original `sdf` shader.
  */
-export var Component = registerComponent('text', {
+module.exports.Component = registerComponent('text', {
   multiple: true,
 
   schema: {
@@ -367,7 +369,7 @@ export var Component = registerComponent('text', {
         ? data.lineHeight
         : font.common.lineHeight;
       geometryUpdateData.text = data.value.toString().replace(newLineRegex, '\n')
-        .replace(tabRegex, '\t');
+                                                     .replace(tabRegex, '\t');
       geometryUpdateData.width = computeWidth(data.wrapPixels, data.wrapCount,
                                               font.widthFactor);
       geometry.update(utils.extend(geometryUpdateBase, data, geometryUpdateData));
@@ -407,7 +409,7 @@ function loadFont (src, yOffset) {
 
       // Fix negative Y offsets for Roboto MSDF font from tool. Experimentally determined.
       if (src.indexOf('/Roboto-msdf.json') >= 0) { yOffset = 30; }
-      if (yOffset) { font.chars.forEach(function doOffset (ch) { ch.yoffset += yOffset; }); }
+      if (yOffset) { font.chars.map(function doOffset (ch) { ch.yoffset += yOffset; }); }
 
       resolve(font);
     });
@@ -464,7 +466,7 @@ function computeFontWidthFactor (font) {
   var sum = 0;
   var digitsum = 0;
   var digits = 0;
-  font.chars.forEach(function (ch) {
+  font.chars.map(function (ch) {
     sum += ch.xadvance;
     if (ch.id >= 48 && ch.id <= 57) {
       digits++;

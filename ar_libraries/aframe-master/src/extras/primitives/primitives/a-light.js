@@ -1,4 +1,4 @@
-import { registerPrimitive } from '../primitives.js';
+var registerPrimitive = require('../primitives').registerPrimitive;
 
 registerPrimitive('a-light', {
   defaultComponents: {

@@ -1,5 +1,5 @@
 /* global assert, suite, test */
-import { device } from 'utils/index.js';
+var device = require('utils').device;
 
 suite('isTablet', function () {
   test('is true for Nexus 7 and Nexus 9', function () {

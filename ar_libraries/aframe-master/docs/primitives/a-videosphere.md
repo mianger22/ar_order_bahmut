@@ -30,7 +30,7 @@ Videospheres are a large sphere with the video texture mapped to the inside.
 
 ## Methods 
 
-More indepth knowledge on the methods to alter video material can be seen over [here](../components/material.md#video-textures)
+More indepth knowledge on the methods to alter video material can be seen over [here](../components/material.html#video-textures)
 
 ```javascript
 // to set specific time of video
@@ -41,6 +41,8 @@ document.querySelector("#antarctica").components.material.material.map.image.pla
 ```
 
 ## Attributes
+
+Note that the videosphere primitive inherits [common attributes](./common-attributes.md).
 
 | Attribute       | Component Mapping       | Default Value |
 |-----------------|-------------------------|---------------|

@@ -1,6 +1,8 @@
 /* global assert, setup, suite, test */
-import THREE from 'lib/three.js';
-import { inferResponseType, getFileNameFromURL } from 'core/a-assets.js';
+var THREE = require('lib/three');
+
+var inferResponseType = require('core/a-assets').inferResponseType;
+var getFileNameFromURL = require('core/a-assets').getFileNameFromURL;
 
 var IMG_SRC = '/base/tests/assets/test.png';
 var XHR_SRC = '/base/tests/assets/dummy/dummy.txt';
@@ -398,7 +400,7 @@ suite('a-asset-item', function () {
     });
 
     test('get file name from url with query parameters', function () {
-      var url = 'https://aframe.io/test.jpg?1531238960521&test=yeah';
+      var url = 'https://cdn.glitch.com/test.jpg?1531238960521&test=yeah';
       assert.equal(getFileNameFromURL(url), 'test.jpg');
     });
   });

@@ -1,16 +1,15 @@
-/* global XRWebGLBinding */
-import * as THREE from 'three';
-import { registerComponent as register } from '../../core/component.js';
+/* global THREE, XRWebGLBinding */
+var register = require('../../core/component').registerComponent;
 
 // source: view-source:https://storage.googleapis.com/chromium-webxr-test/r886480/proposals/lighting-estimation.html
 function updateLights (estimate, probeLight, directionalLight, directionalLightPosition) {
   var intensityScalar =
     Math.max(estimate.primaryLightIntensity.x,
-             Math.max(estimate.primaryLightIntensity.y,
-                      estimate.primaryLightIntensity.z));
+      Math.max(estimate.primaryLightIntensity.y,
+        estimate.primaryLightIntensity.z));
 
   probeLight.sh.fromArray(estimate.sphericalHarmonicsCoefficients);
-  probeLight.intensity = 3.14;
+  probeLight.intensity = 1;
 
   if (directionalLight) {
     directionalLight.color.setRGB(
@@ -23,7 +22,7 @@ function updateLights (estimate, probeLight, directionalLight, directionalLightP
   }
 }
 
-export var Component = register('reflection', {
+module.exports.Component = register('reflection', {
   schema: {
     directionalLight: { type: 'selector' }
   },

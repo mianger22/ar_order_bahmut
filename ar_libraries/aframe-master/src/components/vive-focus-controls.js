@@ -1,11 +1,30 @@
-import { registerComponent } from '../core/component.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
 
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
+
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var VIVE_FOCUS_CONTROLLER_MODEL_URL = AFRAME_CDN_ROOT + 'controllers/vive/focus-controller/focus-controller.gltf';
 
+var isWebXRAvailable = require('../utils/').device.isWebXRAvailable;
+
+var GAMEPAD_ID_WEBXR = 'htc-vive-focus';
+var GAMEPAD_ID_WEBVR = 'HTC Vive Focus ';
+
 // Prefix for HTC Vive Focus Controllers.
-var GAMEPAD_ID_PREFIX = 'htc-vive-focus';
+var GAMEPAD_ID_PREFIX = isWebXRAvailable ? GAMEPAD_ID_WEBXR : GAMEPAD_ID_WEBVR;
+
+/**
+ * Button IDs:
+ * 0 - trackpad
+ * 1 - trigger
+ */
+var INPUT_MAPPING_WEBVR = {
+  axes: {trackpad: [0, 1]},
+  buttons: ['trackpad', 'trigger']
+};
 
 /**
  * Button IDs:
@@ -13,10 +32,12 @@ var GAMEPAD_ID_PREFIX = 'htc-vive-focus';
  * 2 - touchpad
  * 4 - menu
  */
-var INPUT_MAPPING = {
+var INPUT_MAPPING_WEBXR = {
   axes: {touchpad: [0, 1]},
   buttons: ['trigger', 'none', 'touchpad', 'none', 'menu']
 };
+
+var INPUT_MAPPING = isWebXRAvailable ? INPUT_MAPPING_WEBXR : INPUT_MAPPING_WEBVR;
 
 /**
  * Vive Focus controls.
@@ -24,12 +45,14 @@ var INPUT_MAPPING = {
  * controller buttons: trackpad, trigger
  * Load a controller model and highlight the pressed buttons.
  */
-export var Component = registerComponent('vive-focus-controls', {
+module.exports.Component = registerComponent('vive-focus-controls', {
   schema: {
     hand: {default: ''},  // This informs the degenerate arm model.
     buttonTouchedColor: {type: 'color', default: '#BBBBBB'},
     buttonHighlightColor: {type: 'color', default: '#7A7A7A'},
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'},
+    armModel: {default: true}
   },
 
   after: ['tracked-controls'],
@@ -52,6 +75,7 @@ export var Component = registerComponent('vive-focus-controls', {
     this.onButtonTouchStart = function (evt) { onButtonEvent(evt.detail.id, 'touchstart', self); };
     this.onButtonTouchEnd = function (evt) { onButtonEvent(evt.detail.id, 'touchend', self); };
     this.controllerPresent = false;
+    this.lastControllerCheck = 0;
     this.bindMethods();
   },
 
@@ -83,7 +107,7 @@ export var Component = registerComponent('vive-focus-controls', {
 
   checkIfControllerPresent: function () {
     checkControllerPresentAndSetup(this, GAMEPAD_ID_PREFIX,
-                                   this.data.hand ? {hand: this.data.hand} : {});
+                                        this.data.hand ? {hand: this.data.hand} : {});
   },
 
   play: function () {
@@ -98,8 +122,11 @@ export var Component = registerComponent('vive-focus-controls', {
 
   injectTrackedControls: function () {
     var el = this.el;
+    var data = this.data;
     el.setAttribute('tracked-controls', {
-      idPrefix: GAMEPAD_ID_PREFIX
+      armModel: data.armModel,
+      idPrefix: GAMEPAD_ID_PREFIX,
+      orientationOffset: data.orientationOffset
     });
     if (!this.data.model) { return; }
     this.el.setAttribute('gltf-model', VIVE_FOCUS_CONTROLLER_MODEL_URL);
@@ -128,8 +155,6 @@ export var Component = registerComponent('vive-focus-controls', {
     if (buttonMeshes.triggerPressed) {
       buttonMeshes.triggerPressed.visible = false;
     }
-    buttonMeshes.touchpad = controllerObject3D.getObjectByName('TouchPad');
-    buttonMeshes.touchpadPressed = controllerObject3D.getObjectByName('TouchPad_Press');
     buttonMeshes.trackpad = controllerObject3D.getObjectByName('TouchPad');
     buttonMeshes.trackpadPressed = controllerObject3D.getObjectByName('TouchPad_Press');
     if (buttonMeshes.trackpadPressed) {

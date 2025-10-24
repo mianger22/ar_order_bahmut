@@ -9,7 +9,7 @@ examples:
     src: https://github.com/aframevr/aframe/tree/master/examples/docs/360-gallery/index.html
 ---
 
-[live-example]: https://aframe.io/aframe/examples/docs/360-gallery/
+[live-example]: https://aframe.io/examples/docs/360-gallery/
 
 ![360&deg; Image Viewer](/images/docs/360-image-viewer.png)
 
@@ -140,7 +140,7 @@ Now we have a textured plane that plays a click sound when clicked.
 
 ## Using Community Components
 
-[npm]: https://www.npmjs.com/search?q=keywords:aframe-component
+[npm]: https://www.npmjs.com/search?q=aframe-component&page=1&ranking=optimal
 
 A-Frame comes with a small core of standard components, but lot of magic comes
 from the large number of open source community components in the A-Frame
@@ -166,9 +166,9 @@ need to know the component's npm package name and the path:
 <html>
   <head>
     <title>360° Image Browser</title>
-    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-template-component@3.x.x/dist/aframe-template-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-layout-component@5.x.x/dist/aframe-layout-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-layout-component@4.x.x/dist/aframe-layout-component.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
      <script src="https://unpkg.com/aframe-proxy-event-component@2.1.0/dist/aframe-proxy-event-component.min.jss"></script>
     

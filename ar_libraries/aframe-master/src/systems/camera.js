@@ -1,5 +1,5 @@
-import * as constants from '../constants/index.js';
-import { registerSystem } from '../core/system.js';
+var constants = require('../constants/');
+var registerSystem = require('../core/system').registerSystem;
 
 var DEFAULT_CAMERA_ATTR = 'data-aframe-default-camera';
 
@@ -8,7 +8,7 @@ var DEFAULT_CAMERA_ATTR = 'data-aframe-default-camera';
  *
  * @member {object} activeCameraEl - Active camera entity.
  */
-export var System = registerSystem('camera', {
+module.exports.System = registerSystem('camera', {
   init: function () {
     this.activeCameraEl = null;
 
@@ -59,7 +59,7 @@ export var System = registerSystem('camera', {
       });
 
       // Load camera and wait for camera to initialize.
-      if (cameraEls[i].isANode) {
+      if (cameraEls[i].isNode) {
         cameraEls[i].load();
       } else {
         cameraEls[i].addEventListener('nodeready', function () {
@@ -225,7 +225,7 @@ export var System = registerSystem('camera', {
 
   /**
    * Wrap the render method of the renderer to render
-   * the spectator camera.
+   * the spectator camera after vrDisplay.submitFrame.
    */
   wrapRender: function () {
     if (!this.spectatorCameraEl || this.originalRender) { return; }

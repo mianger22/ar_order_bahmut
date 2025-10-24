@@ -1,16 +1,16 @@
-import * as schema from './schema.js';
-import * as THREE from 'three';
+var schema = require('./schema');
 
 var processSchema = schema.process;
-export var geometries = {};  // Registered geometries.
-export var geometryNames = [];  // Names of registered geometries.
+var geometries = module.exports.geometries = {};  // Registered geometries.
+var geometryNames = module.exports.geometryNames = [];  // Names of registered geometries.
+var THREE = require('../lib/three');
 
 /**
  * Geometry class definition.
  *
  * Geometries extend the geometry component API to create and register geometry types.
  */
-export var Geometry = function () {};
+var Geometry = module.exports.Geometry = function () {};
 
 Geometry.prototype = {
   /**
@@ -44,7 +44,7 @@ Geometry.prototype = {
  * @param {object} definition - Geometry property and methods.
  * @returns {object} Geometry.
  */
-export function registerGeometry (name, definition) {
+module.exports.registerGeometry = function (name, definition) {
   var NewGeometry;
   var proto = {};
 
@@ -69,4 +69,4 @@ export function registerGeometry (name, definition) {
   };
   geometryNames.push(name);
   return NewGeometry;
-}
+};

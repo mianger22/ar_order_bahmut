@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test */
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test, AFRAME, THREE */
+var entityFactory = require('../helpers').entityFactory;
 
 var IMAGE1 = 'base/tests/assets/test.png';
 var IMAGE2 = 'base/tests/assets/test2.png';
@@ -158,7 +158,7 @@ suite('material system', function () {
         var system = this.system;
 
         videoEl.insertAdjacentHTML('beforeend',
-                                   '<source src="' + VIDEO1 + '"></source>');
+          '<source src="' + VIDEO1 + '"></source>');
         system.loadTextureSource(videoEl, function (source) {
           var hash = Object.keys(system.sourceCache)[0];
           assert.equal(source.data, videoEl);

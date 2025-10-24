@@ -1,4 +1,5 @@
-import debug from 'debug';
+var debug = require('debug');
+var isBrowserEnvironment = require('./device').isBrowserEnvironment;
 
 var settings = {
   colors: {
@@ -54,9 +55,9 @@ function formatArgs (args) {
 /**
  * Returns the type of the namespace (e.g., `error`, `warn`).
  *
- * @param {string} namespace
+ * @param {String} namespace
  *   The debug logger's namespace (e.g., `components:geometry:warn`).
- * @returns {string} The type of the namespace (e.g., `warn`).
+ * @returns {String} The type of the namespace (e.g., `warn`).
  * @api private
  */
 function getDebugNamespaceType (namespace) {
@@ -68,9 +69,9 @@ function getDebugNamespaceType (namespace) {
 /**
  * Returns the color of the namespace (e.g., `orange`).
  *
- * @param {string} namespace
+ * @param {String} namespace
  *   The debug logger's namespace (e.g., `components:geometry:warn`).
- * @returns {string} The color of the namespace (e.g., `orange`).
+ * @returns {String} The color of the namespace (e.g., `orange`).
  * @api private
  */
 function getDebugNamespaceColor (namespace) {
@@ -114,4 +115,6 @@ if (ls && (parseInt(ls.logs, 10) || ls.logs === 'true')) {
   debug.enable('*:error,*:info,*:warn');
 }
 
-export default debug;
+if (isBrowserEnvironment) { window.logs = debug; }
+
+module.exports = debug;

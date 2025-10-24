@@ -1,7 +1,7 @@
-/* global assert, setup, suite, test, sinon, AFRAME */
-import { entityFactory } from '../helpers.js';
-import { shaders } from 'core/shader.js';
-import THREE from 'lib/three.js';
+/* global assert, process, setup, suite, test, sinon, AFRAME */
+var entityFactory = require('../helpers').entityFactory;
+var shaders = require('core/shader').shaders;
+var THREE = require('index').THREE;
 
 var IMG_SRC = '/base/tests/assets/test.png';
 
@@ -27,7 +27,7 @@ suite('material', function () {
     test('updates material', function () {
       el.setAttribute('material', 'color: #F0F; side: double');
       assert.shallowDeepEqual(el.getObject3D('mesh').material.color,
-                              {r: 1, g: 0, b: 1});
+                             {r: 1, g: 0, b: 1});
       assert.shallowDeepEqual(el.getObject3D('mesh').material.side, THREE.DoubleSide);
     });
 
@@ -212,8 +212,10 @@ suite('material', function () {
       el.components.material.updateSchema({shader: 'flat'});
       assert.ok(el.components.material.schema.color);
       assert.ok(el.components.material.schema.fog);
+      assert.ok(el.components.material.schema.height);
       assert.ok(el.components.material.schema.repeat);
       assert.ok(el.components.material.schema.src);
+      assert.ok(el.components.material.schema.width);
       assert.notOk(el.components.material.schema.metalness);
       assert.notOk(el.components.material.schema.roughness);
       assert.notOk(el.components.material.schema.envMap);

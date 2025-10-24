@@ -28,9 +28,7 @@ pages.forEach(function checkPage (pagePath) {
   let inlineLinkRegex = /\[.*?\]\((.*?)\)/g;
   match = inlineLinkRegex.exec(content);
   while (match !== null) {
-    if (!checkLink(pagePath, match[1])) {
-      addError(pagePath, match[0], 'Page does not exist');
-    }
+    checkLink(pagePath, match[1], 'Page does not exist');
     match = inlineLinkRegex.exec(content);
   }
 

@@ -1,6 +1,6 @@
 /* global assert, suite, test, setup */
-import * as helpers from '../../../helpers.js';
-import { registerComponent } from 'core/component.js';
+var helpers = require('../../../helpers');
+var registerComponent = require('core/component').registerComponent;
 
 suite('a-torus', function () {
   setup(function (done) {
@@ -29,7 +29,7 @@ suite('a-torus', function () {
     torusEl.setAttribute('radius', '2');
     torusEl.setAttribute('radius-tubular', '0.1');
 
-    setTimeout(function () {
+    process.nextTick(function () {
       geometry = torusEl.getAttribute('geometry');
       assert.equal(geometry.primitive, 'torus');
       assert.equal(geometry.segmentsTubular, 100);
@@ -48,7 +48,7 @@ suite('a-torus', function () {
     torusEl.setAttribute('radius-tubular', '0.1');
     scene.appendChild(torusEl);
 
-    setTimeout(function () {
+    process.nextTick(function () {
       geometry = torusEl.getAttribute('geometry');
       assert.equal(geometry.primitive, 'torus');
       assert.equal(geometry.segmentsTubular, 100);
@@ -67,7 +67,7 @@ suite('a-torus', function () {
     torusEl.setAttribute('radius', '2');
     torusEl.setAttribute('radius-tubular', '0.1');
 
-    setTimeout(function () {
+    process.nextTick(function () {
       geometry = torusEl.getAttribute('geometry');
       assert.equal(geometry.primitive, 'torus');
       assert.equal(geometry.segmentsTubular, 100);
@@ -90,7 +90,7 @@ suite('a-torus', function () {
         this.el.setAttribute('radius-tubular', '0.1');
       }
     });
-    setTimeout(function () {
+    process.nextTick(function () {
       geometry = torusEl.getAttribute('geometry');
       assert.equal(geometry.primitive, 'torus');
       assert.equal(geometry.segmentsTubular, 100);

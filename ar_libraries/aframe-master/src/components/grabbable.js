@@ -1,4 +1,4 @@
-import { registerComponent } from '../core/component.js';
+var registerComponent = require('../core/component').registerComponent;
 
 registerComponent('grabbable', {
   init: function () {

@@ -1,6 +1,8 @@
 /* global AFRAME, assert, suite, test, THREE */
-import * as helpers from '../../helpers.js';
-import { registerPrimitive, primitives } from 'extras/primitives/primitives.js';
+var helpers = require('../../helpers');
+var registerPrimitive = require('extras/primitives/primitives').registerPrimitive;
+var registerComponent = require('index').registerComponent;
+var primitives = require('extras/primitives/primitives').primitives;
 
 var primitiveId = 0;
 
@@ -65,7 +67,7 @@ suite('registerPrimitive', function () {
     }, function (el) {
       el.setAttribute('color', 'tomato');
       el.setAttribute('position-aliased', '1 2 3');
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.equal(el.getAttribute('material').color, 'tomato');
         assert.equal(el.getAttribute('position').x, 1);
         done();
@@ -319,7 +321,7 @@ suite('registerPrimitive (using innerHTML)', function () {
       count++;
       if (count >= 2) {
         evt.detail.el.addEventListener('loaded', function () {
-          setTimeout(function () {
+          process.nextTick(function () {
             assert.equal(el.children[0].getAttribute('material').color, 'red');
             assert.equal(el.children[1].getAttribute('material').color, 'blue');
             done();
@@ -342,7 +344,7 @@ suite('registerPrimitive (using innerHTML)', function () {
     }, 'mixin="bar"', function postCreation (el) {
       assert.equal(el.getAttribute('material').color, 'orange');
       document.querySelector('[mixin="bar"]').setAttribute('material', 'color: black');
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.equal(el.getAttribute('material').color, 'black');
         el.setAttribute('foo', 'purple');
         setTimeout(function () {

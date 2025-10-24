@@ -1,5 +1,5 @@
-import * as utils from '../utils/index.js';
-import * as PropertyTypes from './propertyTypes.js';
+var utils = require('../utils/');
+var PropertyTypes = require('./propertyTypes');
 
 var debug = utils.debug;
 var isValidDefaultValue = PropertyTypes.isValidDefaultValue;
@@ -13,12 +13,13 @@ var warn = debug('core:schema:warn');
  * - OR `default` is defined on the schema, as a reserved keyword.
  * - OR schema is empty.
  */
-export function isSingleProperty (schema) {
+function isSingleProperty (schema) {
   if ('type' in schema) {
     return typeof schema.type === 'string';
   }
   return 'default' in schema;
 }
+module.exports.isSingleProperty = isSingleProperty;
 
 /**
  * Build step to schema to use `type` to inject default value, parser, and stringifier.
@@ -27,7 +28,7 @@ export function isSingleProperty (schema) {
  * @param {string} componentName
  * @returns {object} Schema.
  */
-export function process (schema, componentName) {
+module.exports.process = function (schema, componentName) {
   var propName;
 
   // For single property schema, run processPropDefinition over the whole schema.
@@ -40,7 +41,7 @@ export function process (schema, componentName) {
     schema[propName] = processPropertyDefinition(schema[propName], componentName);
   }
   return schema;
-}
+};
 
 /**
  * Inject default value, parser, stringifier for single property.
@@ -48,7 +49,7 @@ export function process (schema, componentName) {
  * @param {object} propDefinition
  * @param {string} componentName
  */
-export function processPropertyDefinition (propDefinition, componentName) {
+function processPropertyDefinition (propDefinition, componentName) {
   var defaultVal = propDefinition.default;
   var isCustomType;
   var propType;
@@ -101,6 +102,7 @@ export function processPropertyDefinition (propDefinition, componentName) {
 
   return propDefinition;
 }
+module.exports.processPropertyDefinition = processPropertyDefinition;
 
 /**
  * Parse propData using schema. Use default values if not existing in propData.
@@ -112,7 +114,7 @@ export function processPropertyDefinition (propDefinition, componentName) {
  * @param {string } componentName - Name of the component, used for the property warning.
  * @param {boolean} silent - Suppress warning messages.
  */
-export var parseProperties = (function () {
+module.exports.parseProperties = (function () {
   var propNames = [];
 
   return function (propData, schema, getPartialData, componentName, silent) {
@@ -156,7 +158,7 @@ export var parseProperties = (function () {
  * @param {object} propDefinition - The single property schema for the property.
  * @param {any} target - Optional target value to parse into (reuse).
  */
-export function parseProperty (value, propDefinition, target) {
+function parseProperty (value, propDefinition, target) {
   // Use default value if value is falsy.
   if (value === undefined || value === null || value === '') {
     value = propDefinition.default;
@@ -165,11 +167,12 @@ export function parseProperty (value, propDefinition, target) {
   // Invoke property type parser.
   return propDefinition.parse(value, propDefinition.default, target);
 }
+module.exports.parseProperty = parseProperty;
 
 /**
  * Serialize a group of properties.
  */
-export function stringifyProperties (propData, schema) {
+module.exports.stringifyProperties = function (propData, schema) {
   var propName;
   var propDefinition;
   var propValue;
@@ -184,17 +187,15 @@ export function stringifyProperties (propData, schema) {
       value = stringifyProperty(propValue, propDefinition);
       if (!propDefinition) { warn('Unknown component property: ' + propName); }
     }
-    if (value !== undefined) {
-      stringifiedData[propName] = value;
-    }
+    stringifiedData[propName] = value;
   }
   return stringifiedData;
-}
+};
 
 /**
  * Serialize a single property.
  */
-export function stringifyProperty (value, propDefinition) {
+function stringifyProperty (value, propDefinition) {
   // This function stringifies but it's used in a context where
   // there's always second stringification pass. By returning the original
   // value when it's not an object we save one unnecessary call
@@ -204,3 +205,4 @@ export function stringifyProperty (value, propDefinition) {
   if (!propDefinition || value === null) { return JSON.stringify(value); }
   return propDefinition.stringify(value);
 }
+module.exports.stringifyProperty = stringifyProperty;

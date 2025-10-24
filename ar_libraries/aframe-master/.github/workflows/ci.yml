@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '**/*.md'
   pull_request:
     branches:
       - master
@@ -26,8 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix['node-version'] }}
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+# Enabling the cache reduces the "Install dependencies" step by 1m30,
+# but you need package-lock.json in the repo.
+#          cache: 'npm'
+#          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
         run: npm install

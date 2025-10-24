@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test, teardown */
-import { entityFactory } from '../../helpers.js';
+/* global assert, process, setup, suite, test, teardown */
+var entityFactory = require('../../helpers').entityFactory;
 
 var PERMISSION_DIALOG_CLASSES = ['.a-modal', '.a-dialog', '.a-dialog-allow-button', '.a-dialog-deny-button'];
 
@@ -24,7 +24,7 @@ suite('device-orientation-permission-ui', function () {
 
     test('appends permission dialog', function (done) {
       var scene = this.el;
-      setTimeout(function () {
+      process.nextTick(function () {
         PERMISSION_DIALOG_CLASSES.forEach(function (uiClass) {
           assert.equal(scene.querySelectorAll(uiClass).length, 1);
           done();

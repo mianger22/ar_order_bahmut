@@ -1,5 +1,5 @@
 /* global Image, XMLHttpRequest */
-import debug from './debug.js';
+var debug = require('./debug');
 
 var warn = debug('utils:src-loader:warn');
 
@@ -10,11 +10,11 @@ var warn = debug('utils:src-loader:warn');
  *
  * `src` will be passed into the callback
  *
- * @param {string|Element} src - URL or media element.
- * @param {function} isImageCb - callback if texture is an image.
- * @param {function} isVideoCb - callback if texture is a video.
+ * @params {string|Element} src - URL or media element.
+ * @params {function} isImageCb - callback if texture is an image.
+ * @params {function} isVideoCb - callback if texture is a video.
  */
-export function validateSrc (src, isImageCb, isVideoCb) {
+function validateSrc (src, isImageCb, isVideoCb) {
   checkIsImage(src, function isAnImageUrl (isImage) {
     if (isImage) {
       isImageCb(src);
@@ -29,10 +29,10 @@ export function validateSrc (src, isImageCb, isVideoCb) {
  *
  * @param {string} src - A selector, image URL or comma-separated image URLs. Image URLS
           must be wrapped by `url()`.
- * @param {function} isCubemapCb - callback if src is a cubemap.
- * @param {function} isEquirectCb - callback if src is a singular equirectangular image.
+ * @param {*} isCubemapCb - callback if src is a cubemap.
+ * @param {*} isEquirectCb - callback is src is a singular equirectangular image.
  */
-export function validateEnvMapSrc (src, isCubemapCb, isEquirectCb) {
+function validateEnvMapSrc (src, isCubemapCb, isEquirectCb) {
   var el;
   var cubemapSrcRegex = '';
   var i;
@@ -99,7 +99,7 @@ export function validateEnvMapSrc (src, isCubemapCb, isEquirectCb) {
           must be wrapped by `url()`.
  * @param {function} cb - callback if src is a cubemap.
  */
-export function validateCubemapSrc (src, cb) {
+function validateCubemapSrc (src, cb) {
   return validateEnvMapSrc(src, cb, function isEquirectCb () {
     warn('Expected cubemap but got image');
   });
@@ -108,9 +108,9 @@ export function validateCubemapSrc (src, cb) {
 /**
  * Parses src from `url(src)`.
  * @param  {string} src - String to parse.
- * @returns {string} The parsed src, if parseable.
+ * @return {string} The parsed src, if parseable.
  */
-export function parseUrl (src) {
+function parseUrl (src) {
   var parsedSrc = src.match(/url\((.+)\)/);
   if (!parsedSrc) { return; }
   return parsedSrc[1];
@@ -166,10 +166,10 @@ function checkIsImageFallback (src, onResult) {
 /**
  * Query and validate a query selector,
  *
- * @param {string} selector - DOM selector.
- * @returns {object|null|undefined} Selected DOM element if exists.
- *          null if query yields no results.
- *          undefined if `selector` is not a valid selector.
+ * @param  {string} selector - DOM selector.
+ * @return {object|null|undefined} Selected DOM element if exists.
+           null if query yields no results.
+           undefined if `selector` is not a valid selector.
  */
 function validateAndGetQuerySelector (selector) {
   try {
@@ -183,3 +183,10 @@ function validateAndGetQuerySelector (selector) {
     return undefined;
   }
 }
+
+module.exports = {
+  parseUrl: parseUrl,
+  validateSrc: validateSrc,
+  validateCubemapSrc: validateCubemapSrc,
+  validateEnvMapSrc: validateEnvMapSrc
+};

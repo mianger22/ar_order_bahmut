@@ -1,13 +1,13 @@
-import { registerComponent } from '../core/component.js';
-import { debug } from '../utils/index.js';
-import * as THREE from 'three';
+var registerComponent = require('../core/component').registerComponent;
+var debug = require('../utils/debug');
+var THREE = require('../lib/three');
 
 var warn = debug('components:sound:warn');
 
 /**
  * Sound component.
  */
-export var Component = registerComponent('sound', {
+module.exports.Component = registerComponent('sound', {
   schema: {
     autoplay: {default: false},
     distanceModel: {default: 'inverse', oneOf: ['linear', 'inverse', 'exponential']},
@@ -143,6 +143,8 @@ export var Component = registerComponent('sound', {
 
   /**
    * Removes current sound object, creates new sound object, adds to entity.
+   *
+   * @returns {object} sound
    */
   setupSound: function () {
     var el = this.el;

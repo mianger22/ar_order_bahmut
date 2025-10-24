@@ -1,8 +1,8 @@
 /* global MutationObserver */
 
-import * as THREE from 'three';
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 
 var warn = utils.debug('components:raycaster:warn');
 
@@ -40,7 +40,7 @@ var EVENTS = {
  * @member {number} prevCheckTime - Previous time intersection was checked. To help interval.
  * @member {object} raycaster - three.js Raycaster.
  */
-export var Component = registerComponent('raycaster', {
+module.exports.Component = registerComponent('raycaster', {
   schema: {
     autoRefresh: {default: true},
     direction: {type: 'vec3', default: {x: 0, y: 0, z: -1}},
@@ -131,9 +131,7 @@ export var Component = registerComponent('raycaster', {
 
     if (oldData.enabled && !data.enabled) { this.clearAllIntersections(); }
 
-    if (data.objects !== oldData.objects) {
-      this.setDirty();
-    }
+    this.setDirty();
   },
 
   play: function () {
@@ -311,7 +309,7 @@ export var Component = registerComponent('raycaster', {
   /**
    * Return the most recent intersection details for a given entity, if any.
    * @param {AEntity} el
-   * @returns {object|null}
+   * @return {Object}
    */
   getIntersection: function (el) {
     var i;
@@ -405,8 +403,8 @@ export var Component = registerComponent('raycaster', {
    * Only push children defined as component attachments (e.g., setObject3D),
    * NOT actual children in the scene graph hierarchy.
    *
-   * @param {Array<Element>} els
-   * @returns {Array<THREE.Object3D>}
+   * @param  {Array<Element>} els
+   * @return {Array<THREE.Object3D>}
    */
   flattenObject3DMaps: function (els) {
     var key;

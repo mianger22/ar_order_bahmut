@@ -1,7 +1,7 @@
 /* global customElements */
-import * as THREE from 'three';
-import { ANode } from './a-node.js';
-import { debug } from '../utils/index.js';
+var ANode = require('./a-node').ANode;
+var debug = require('../utils/debug');
+var THREE = require('../lib/three');
 
 var fileLoader = new THREE.FileLoader();
 var warn = debug('core:a-assets:warn');
@@ -130,7 +130,7 @@ class AAssetItem extends ANode {
         xhr: xhr
       });
     }, function handleOnError (xhr) {
-      self.emit('error', {xhr: xhr}, false);
+      self.emit('error', {xhr: xhr});
     });
   }
 }
@@ -205,7 +205,7 @@ function fixUpMediaElement (mediaEl) {
  * If it is not defined, we must create and re-append a new media element <img> and
  * have the browser re-request it with `crossorigin` set.
  *
- * @param {Element} mediaEl - Media element (e.g., <img>, <audio>, <video>).
+ * @param {Element} Media element (e.g., <img>, <audio>, <video>).
  * @returns {Element} Media element to be used to listen to for loaded events.
  */
 function setCrossOrigin (mediaEl) {
@@ -255,7 +255,7 @@ function extractDomain (url) {
  * @param {string} src
  * @returns {string}
  */
-export function inferResponseType (src) {
+function inferResponseType (src) {
   var fileName = getFileNameFromURL(src);
   var dotLastIndex = fileName.lastIndexOf('.');
   if (dotLastIndex >= 0) {
@@ -266,6 +266,7 @@ export function inferResponseType (src) {
   }
   return 'text';
 }
+module.exports.inferResponseType = inferResponseType;
 
 /**
  * Extract filename from URL
@@ -273,10 +274,11 @@ export function inferResponseType (src) {
  * @param {string} url
  * @returns {string}
  */
-export function getFileNameFromURL (url) {
+function getFileNameFromURL (url) {
   var parser = document.createElement('a');
   parser.href = url;
   var query = parser.search.replace(/^\?/, '');
   var filePath = url.replace(query, '').replace('?', '');
   return filePath.substring(filePath.lastIndexOf('/') + 1);
 }
+module.exports.getFileNameFromURL = getFileNameFromURL;

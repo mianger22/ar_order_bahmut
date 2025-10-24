@@ -130,7 +130,7 @@ document.querySelector('a-scene').renderer.setTexture2D(ourTexture, 0);
 
 We will try to come with a convenient API in A-Frame to do this automatically.
 
-[360]: https://aframe.io/aframe/examples/docs/360-gallery/
+[360]: https://aframe-360-gallery.glitch.me
 
 For example, this is apparent in the [360&deg; image gallery][360]. If we look at
 the browser performance tools, there will be frame drops when switching to a
@@ -249,7 +249,7 @@ using `utils.throttleTick`][throttle] to run your code at less frequent interval
 
 ## VR Design
 
-[oculus]: https://developers.meta.com/horizon/resources/bp-overview/
+[oculus]: https://developer.oculus.com/design/latest/concepts/book-bp/
 
 Designing for VR is different than designing for flat experiences. As a new
 medium, there are new sets of best practices to follow, especially to maintain

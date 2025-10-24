@@ -1,5 +1,5 @@
 /* global customElements, HTMLElement */
-import { debug } from '../utils/index.js';
+var debug = require('../utils/debug');
 
 var warn = debug('core:cubemap:warn');
 
@@ -40,7 +40,7 @@ class ACubeMap extends HTMLElement {
    * Checks for exactly six elements with [src].
    * When <img>s are used they will be prefetched.
    *
-   * @returns {Array<string|Element>|undefined} six URLs or <img> elements if valid, else undefined.
+   * @returns {Array|null} - six URLs or <img> elements if valid, else null.
    */
   validate () {
     var elements = this.querySelectorAll('[src]');

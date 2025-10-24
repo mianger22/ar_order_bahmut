@@ -144,20 +144,15 @@ diff({a: 1, b: 2, c: 3}, {b: 2, c: 4})
 
 ### `AFRAME.utils.device.checkHeadsetConnected ()`
 
-Checks if a VR headset is connected by looking for browser support of
-immersive-vr or immersive-ar WebXR session. Returns a `boolean`.
+Checks if a VR headset is connected by looking for orientation data. Returns a `boolean`.
+
+### `AFRAME.utils.device.isOculusGo ()`
+
+Checks if device is Oculus Go. Returns a `boolean`.
 
 ### `AFRAME.utils.device.isMobile ()`
 
 Checks if device is a smartphone. Returns a `boolean`.
-
-### `AFRAME.utils.device.isTablet ()`
-
-Checks if device is a tablet. Returns a `boolean`.
-
-### `AFRAME.utils.device.isMobileVR ()`
-
-Checks if device is a standalone headset. Returns a `boolean`.
 
 ## Function Utils
 

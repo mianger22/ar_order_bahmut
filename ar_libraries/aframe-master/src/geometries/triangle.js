@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { registerGeometry } from '../core/geometry.js';
+var registerGeometry = require('../core/geometry').registerGeometry;
+var THREE = require('../lib/three');
 
 var quaternion = new THREE.Quaternion();
 var rotateVector = new THREE.Vector3(0, 0, 1);

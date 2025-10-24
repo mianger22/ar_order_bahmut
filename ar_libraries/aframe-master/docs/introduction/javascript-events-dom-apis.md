@@ -14,7 +14,7 @@ examples:
   - title: A-Frame School &mdash; Handling Events
     src: https://glitch.com/edit/#!/aframe-school-js?path=solution4.html
   - title: Animated Lights
-    src: https://aframe.io/aframe/examples/showcase/dynamic-lights/
+    src: https://glitch.com/edit/#!/aframe-animated-lights?path=index.html
 ---
 
 [geometry]: ../components/geometry.md
@@ -321,7 +321,7 @@ entityEl.setAttribute('geometry', {
 });
 ```
 
-[physics]: https://github.com/c-frame/aframe-physics-system
+[physics]: https://github.com/donmccurdy/aframe-physics-system
 
 Or adding [the community physics component][physics]:
 
@@ -521,7 +521,7 @@ this.el.addEventListener('physicscollided', (event) => {
 
 2. By defining your event listener within the events object of the component (this will also handling adding and removing the listener automatically)
 
-   See the explanation [here](../core/component.md#events).
+   See the explanation [here](../core/component.html#events).
 
 
 3. By creating another function, which is the bound version of the function.

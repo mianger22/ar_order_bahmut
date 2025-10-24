@@ -1,6 +1,6 @@
-import './flat.js';
-import './standard.js';
-import './phong.js';
-import './sdf.js';
-import './msdf.js';
-import './shadow.js';
+require('./flat');
+require('./standard');
+require('./phong');
+require('./sdf');
+require('./msdf');
+require('./shadow');

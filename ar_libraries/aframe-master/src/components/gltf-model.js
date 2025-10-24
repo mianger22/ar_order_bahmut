@@ -1,12 +1,12 @@
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 var warn = utils.debug('components:gltf-model:warn');
 
 /**
  * glTF model loader.
  */
-export var Component = registerComponent('gltf-model', {
+module.exports.Component = registerComponent('gltf-model', {
   schema: {type: 'model'},
 
   init: function () {
@@ -15,7 +15,7 @@ export var Component = registerComponent('gltf-model', {
     var meshoptDecoder = this.system.getMeshoptDecoder();
     var ktxLoader = this.system.getKTX2Loader();
     this.model = null;
-    this.loader = new GLTFLoader();
+    this.loader = new THREE.GLTFLoader();
     if (dracoLoader) {
       this.loader.setDRACOLoader(dracoLoader);
     }
@@ -36,13 +36,12 @@ export var Component = registerComponent('gltf-model', {
     var el = this.el;
     var src = this.data;
 
-    this.remove();
-
     if (!src) { return; }
+
+    this.remove();
 
     this.ready.then(function () {
       self.loader.load(src, function gltfLoaded (gltfModel) {
-        if (src !== self.data) { return; }
         self.model = gltfModel.scene || gltfModel.scenes[0];
         self.model.animations = gltfModel.animations;
 
@@ -59,6 +58,5 @@ export var Component = registerComponent('gltf-model', {
   remove: function () {
     if (!this.model) { return; }
     this.el.removeObject3D('mesh');
-    this.model = null;
   }
 });

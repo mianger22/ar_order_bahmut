@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test, THREE */
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test, THREE */
+var entityFactory = require('../helpers').entityFactory;
 
 suite('raycaster', function () {
   var component;

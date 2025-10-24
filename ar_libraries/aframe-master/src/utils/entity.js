@@ -1,4 +1,4 @@
-import { split } from './split.js';
+var split = require('./split').split;
 
 /**
  * Split a delimited component property string (e.g., `material.color`) to an object
@@ -9,9 +9,9 @@ import { split } from './split.js';
  *
  * @param {string} str - e.g., `material.opacity`.
  * @param {string} delimiter - e.g., `.`.
- * @returns {string[]} e.g., `['material', 'opacity']`.
+ * @returns {array} e.g., `['material', 'opacity']`.
  */
-export function getComponentPropertyPath (str, delimiter) {
+function getComponentPropertyPath (str, delimiter) {
   delimiter = delimiter || '.';
   var parts = split(str, delimiter);
   if (parts.length === 1) {
@@ -19,12 +19,13 @@ export function getComponentPropertyPath (str, delimiter) {
   }
   return parts;
 }
+module.exports.getComponentPropertyPath = getComponentPropertyPath;
 
 /**
  * Get component property using encoded component name + component property name with a
  * delimiter.
  */
-export function getComponentProperty (el, name, delimiter) {
+module.exports.getComponentProperty = function (el, name, delimiter) {
   var splitName;
   delimiter = delimiter || '.';
   if (name.indexOf(delimiter) !== -1) {
@@ -35,13 +36,13 @@ export function getComponentProperty (el, name, delimiter) {
     return el.getAttribute(splitName[0])[splitName[1]];
   }
   return el.getAttribute(name);
-}
+};
 
 /**
  * Set component property using encoded component name + component property name with a
  * delimiter.
  */
-export function setComponentProperty (el, name, value, delimiter) {
+module.exports.setComponentProperty = function (el, name, value, delimiter) {
   var splitName;
   delimiter = delimiter || '.';
   if (name.indexOf(delimiter) !== -1) {
@@ -54,4 +55,4 @@ export function setComponentProperty (el, name, value, delimiter) {
     return;
   }
   el.setAttribute(name, value);
-}
+};

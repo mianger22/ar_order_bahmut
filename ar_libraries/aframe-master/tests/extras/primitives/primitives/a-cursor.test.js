@@ -1,5 +1,5 @@
 /* global assert, suite, test, setup */
-import * as helpers from '../../../helpers.js';
+var helpers = require('../../../helpers');
 
 suite('a-cursor', function () {
   setup(function (done) {

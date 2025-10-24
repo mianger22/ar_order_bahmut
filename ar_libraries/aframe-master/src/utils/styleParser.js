@@ -9,17 +9,17 @@ var DASH_REGEX = /-([a-z])/g;
  * Deserialize style-like string into an object of properties.
  *
  * @param {string} value - HTML attribute value.
- * @param {object} [obj] - Reused object for object pooling.
+ * @param {object} obj - Reused object for object pooling.
  * @returns {object} Property data.
  */
-export function parse (value, obj) {
+module.exports.parse = function (value, obj) {
   var parsedData;
   if (typeof value !== 'string') { return value; }
   parsedData = styleParse(value, obj);
   // The style parser returns an object { "" : "test"} when fed a string
   if (parsedData['']) { return value; }
   return parsedData;
-}
+};
 
 /**
  * Serialize an object of properties into a style-like string.
@@ -27,20 +27,21 @@ export function parse (value, obj) {
  * @param {object} data - Property data.
  * @returns {string}
  */
-export function stringify (data) {
+module.exports.stringify = function (data) {
   if (typeof data === 'string') { return data; }
   return styleStringify(data);
-}
+};
 
 /**
  * Converts string from hyphen to camelCase.
  *
  * @param {string} str - String to camelCase.
- * @returns {string} CamelCased string.
+ * @return {string} CamelCased string.
  */
-export function toCamelCase (str) {
+function toCamelCase (str) {
   return str.replace(DASH_REGEX, upperCase);
 }
+module.exports.toCamelCase = toCamelCase;
 
 /**
  * Split a string into chunks matching `<key>: <value>`
@@ -83,7 +84,7 @@ var getKeyValueChunks = (function () {
  * Convert a style attribute string to an object.
  *
  * @param {object} str - Attribute string.
- * @param {object} [obj] - Object to reuse as a base, else a new one will be allocated.
+ * @param {object} obj - Object to reuse as a base, else a new one will be allocated.
  */
 function styleParse (str, obj) {
   var chunks;

@@ -191,8 +191,8 @@ AFRAME.registerComponent('hand-menu', {
       this.menuEl.emit('open');
       function lookAtVector (sourcePoint, destPoint) {
         return auxQuaternion.setFromRotationMatrix(
-          auxMatrix.identity().lookAt(sourcePoint, destPoint, new THREE.Vector3(0, 1, 0))
-        );
+            auxMatrix.identity()
+            .lookAt(sourcePoint, destPoint, new THREE.Vector3(0, 1, 0)));
       }
 
       var cameraEl = this.el.sceneEl.querySelector('[camera]');
@@ -213,6 +213,7 @@ AFRAME.registerComponent('hand-menu', {
 
   lookAtCamera: (function () {
     var auxVector = new THREE.Vector3();
+    var auxObject3D = new THREE.Object3D();
     return function (el) {
       var cameraEl = this.el.sceneEl.querySelector('[camera]');
       auxVector.subVectors(cameraEl.object3D.position, el.object3D.position).add(el.object3D.position);
@@ -228,9 +229,9 @@ Watch style UI that work both in VR and AR with @aframevr in one line of <HTML>
 
 Try now on @Meta Quest Browser
 
-https://aframe.io/aframe/examples/mixed-reality/watch/
+https://a-watch.glitch.me/
 
-Just 400 lines of code: https://github.com/aframevr/aframe/tree/master/examples/mixed-reality/watch
+Just 400 lines of code: https://glitch.com/edit/#!/a-watch
 
 Watch-style intuitive but easy to occlude hands ⌚️
 Palm- style less familiar but more robust ✋

@@ -1,15 +1,15 @@
 /* global customElements */
-import { ANode } from './a-node.js';
-import { components } from './component.js';
-import * as utils from '../utils/index.js';
-import * as styleParser from '../utils/styleParser.js';
+var ANode = require('./a-node').ANode;
+var components = require('./component').components;
+var utils = require('../utils');
+var styleParser = utils.styleParser;
 
 var MULTIPLE_COMPONENT_DELIMITER = '__';
 
 /**
- * @property {object} componentCache - Cache of pre-parsed values. An object where the keys
+ * @member {object} componentCache - Cache of pre-parsed values. An object where the keys
  *         are component names and the values are already parsed by the component.
- * @property {object} rawAttributeCache - Cache of the raw attribute values.
+ * @member {object} rawAttributeCache - Cache of the raw attribute values.
  */
 class AMixin extends ANode {
   constructor () {

@@ -1,5 +1,5 @@
 /* global assert, suite, test */
-import { throttle } from 'utils/index.js';
+var throttle = require('utils').throttle;
 
 suite('utils.throttle', function () {
   var ts;

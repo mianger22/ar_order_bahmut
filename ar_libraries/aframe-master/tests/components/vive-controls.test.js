@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test, THREE */
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test, THREE */
+var entityFactory = require('../helpers').entityFactory;
 
 suite('vive-controls', function () {
   var component;
@@ -14,7 +14,7 @@ suite('vive-controls', function () {
       component.controllersWhenPresent = [
         {profiles: ['htc-vive'], handedness: 'right'}
       ];
-      controlsSystem = el.sceneEl.systems['tracked-controls'];
+      controlsSystem = el.sceneEl.systems['tracked-controls-webxr'];
       done();
     });
     el.setAttribute('vive-controls', 'hand: right; model: true');  // To ensure index = 0.

@@ -1,5 +1,5 @@
-import { registerSystem } from '../core/system.js';
-import * as constants from '../constants/index.js';
+var registerSystem = require('../core/system').registerSystem;
+var constants = require('../constants/');
 
 var DEFAULT_LIGHT_ATTR = 'data-aframe-default-light';
 
@@ -9,10 +9,10 @@ var DEFAULT_LIGHT_ATTR = 'data-aframe-default-light';
  * Prescribes default lighting if not specified (one ambient, one directional).
  * Removes default lighting from the scene when a new light is added.
  *
- * @param {boolean} defaultLights - Whether default lighting are defined.
- * @param {boolean} userDefinedLights - Whether user lighting is defined.
+ * @param {bool} defaultLights - Whether default lighting are defined.
+ * @param {bool} userDefinedLights - Whether user lighting is defined.
  */
-export var System = registerSystem('light', {
+module.exports.System = registerSystem('light', {
   schema: {
     defaultLightsEnabled: {default: true}
   },
@@ -72,7 +72,7 @@ export var System = registerSystem('light', {
     sceneEl.appendChild(ambientLight);
 
     directionalLight = document.createElement('a-entity');
-    directionalLight.setAttribute('light', {color: '#FFF', intensity: 1.884, castShadow: true});
+    directionalLight.setAttribute('light', {color: '#FFF', intensity: 0.6, castShadow: true});
     directionalLight.setAttribute('position', {x: -0.5, y: 1, z: 1});
     directionalLight.setAttribute(DEFAULT_LIGHT_ATTR, '');
     directionalLight.setAttribute(constants.AFRAME_INJECTED, '');

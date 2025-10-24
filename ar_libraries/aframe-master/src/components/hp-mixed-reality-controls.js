@@ -1,12 +1,16 @@
-import { registerComponent } from '../core/component.js';
-import * as THREE from 'three';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
-import { checkControllerPresentAndSetup, emitIfAxesChanged, onButtonEvent } from '../utils/tracked-controls.js';
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+var emitIfAxesChanged = trackedControlsUtils.emitIfAxesChanged;
+var onButtonEvent = trackedControlsUtils.onButtonEvent;
 
 // See Profiles Registry:
 // https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/registry
 // TODO: Add a more robust system for deriving gamepad name.
 var GAMEPAD_ID = 'hp-mixed-reality';
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var HP_MIXED_REALITY_MODEL_GLB_BASE_URL = AFRAME_CDN_ROOT + 'controllers/hp/mixed-reality/';
 
 var HP_MIXED_REALITY_POSITION_OFFSET = {x: 0, y: 0, z: 0.06};
@@ -37,10 +41,11 @@ var INPUT_MAPPING_WEBXR = {
 /**
  * HP Mixed Reality Controls
  */
-export var Component = registerComponent('hp-mixed-reality-controls', {
+module.exports.Component = registerComponent('hp-mixed-reality-controls', {
   schema: {
     hand: {default: 'none'},
-    model: {default: true}
+    model: {default: true},
+    orientationOffset: {type: 'vec3'}
   },
 
   mapping: INPUT_MAPPING_WEBXR,
@@ -48,6 +53,7 @@ export var Component = registerComponent('hp-mixed-reality-controls', {
   init: function () {
     var self = this;
     this.controllerPresent = false;
+    this.lastControllerCheck = 0;
     this.onButtonChanged = this.onButtonChanged.bind(this);
     this.onButtonDown = function (evt) { onButtonEvent(evt.detail.id, 'down', self, self.data.hand); };
     this.onButtonUp = function (evt) { onButtonEvent(evt.detail.id, 'up', self, self.data.hand); };
@@ -119,7 +125,8 @@ export var Component = registerComponent('hp-mixed-reality-controls', {
       // TODO: verify expected behavior between reserved prefixes.
       idPrefix: GAMEPAD_ID,
       hand: data.hand,
-      controller: this.controllerIndex
+      controller: this.controllerIndex,
+      orientationOffset: data.orientationOffset
     });
 
     // Load model.

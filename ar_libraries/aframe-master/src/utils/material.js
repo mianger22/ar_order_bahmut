@@ -1,7 +1,7 @@
-/* global HTMLCanvasElement, HTMLVideoElement */
-import * as THREE from 'three';
-import * as srcLoader from './src-loader.js';
-import debug from './debug.js';
+/* global HTMLCanvasElement, HTMLImageElement, HTMLVideoElement */
+var THREE = require('../lib/three');
+var srcLoader = require('./src-loader');
+var debug = require('./debug');
 var warn = debug('utils:material:warn');
 
 var COLOR_MAPS = new Set([
@@ -11,29 +11,29 @@ var COLOR_MAPS = new Set([
   'specularMap'
 ]);
 
-var FILTERING_TYPES = {
-  'nearest': THREE.NearestFilter,
-  'nearest-mipmap-nearest': THREE.NearestMipMapNearestFilter,
-  'nearest-mipmap-linear': THREE.NearestMipMapLinearFilter,
-  'linear': THREE.LinearFilter,
-  'linear-mipmap-nearest': THREE.LinearMipMapNearestFilter,
-  'linear-mipmap-linear': THREE.LinearMipmapLinearFilter
-};
-
 /**
  * Set texture properties such as repeat and offset.
  *
- * @param {THREE.Texture} texture - a Texture instance.
  * @param {object} data - With keys like `repeat`.
  */
-export function setTextureProperties (texture, data) {
+function setTextureProperties (texture, data) {
   var offset = data.offset || {x: 0, y: 0};
   var repeat = data.repeat || {x: 1, y: 1};
+  var npot = data.npot || false;
   var anisotropy = data.anisotropy || THREE.Texture.DEFAULT_ANISOTROPY;
   var wrapS = texture.wrapS;
   var wrapT = texture.wrapT;
-  var magFilter = FILTERING_TYPES[data.magFilter] || texture.magFilter;
-  var minFilter = FILTERING_TYPES[data.minFilter] || texture.minFilter;
+  var magFilter = texture.magFilter;
+  var minFilter = texture.minFilter;
+
+  // To support NPOT textures, wrap must be ClampToEdge (not Repeat),
+  // and filters must not use mipmaps (i.e. Nearest or Linear).
+  if (npot) {
+    wrapS = THREE.ClampToEdgeWrapping;
+    wrapT = THREE.ClampToEdgeWrapping;
+    magFilter = THREE.LinearFilter;
+    minFilter = THREE.LinearFilter;
+  }
 
   // Set wrap mode to repeat only if repeat isn't 1/1. Power-of-two is required to repeat.
   if (repeat.x !== 1 || repeat.y !== 1) {
@@ -52,22 +52,20 @@ export function setTextureProperties (texture, data) {
     texture.wrapT = wrapT;
     texture.magFilter = magFilter;
     texture.minFilter = minFilter;
-    texture.generateMipmaps = minFilter !== THREE.NearestFilter && minFilter !== THREE.LinearFilter;
     texture.anisotropy = anisotropy;
     texture.needsUpdate = true;
   }
 }
+module.exports.setTextureProperties = setTextureProperties;
 
 /**
  * Update `material` texture property (usually but not always `map`)
  * from `data` property (usually but not always `src`).
  *
- * @param {string} materialName
- * @param {string} dataName
  * @param {object} shader - A-Frame shader instance.
  * @param {object} data
  */
-export function updateMapMaterialFromData (materialName, dataName, shader, data) {
+module.exports.updateMapMaterialFromData = function (materialName, dataName, shader, data) {
   var el = shader.el;
   var material = shader.material;
   var rendererSystem = el.sceneEl.systems.renderer;
@@ -152,7 +150,7 @@ export function updateMapMaterialFromData (materialName, dataName, shader, data)
     material.needsUpdate = true;
     handleTextureEvents(el, texture);
   }
-}
+};
 
 /**
  * Update `material.map` given `data.src`. For standard and flat shaders.
@@ -160,9 +158,9 @@ export function updateMapMaterialFromData (materialName, dataName, shader, data)
  * @param {object} shader - A-Frame shader instance.
  * @param {object} data
  */
-export function updateMap (shader, data) {
-  return updateMapMaterialFromData('map', 'src', shader, data);
-}
+module.exports.updateMap = function (shader, data) {
+  return module.exports.updateMapMaterialFromData('map', 'src', shader, data);
+};
 
 /**
  * Updates the material's maps which give the illusion of extra geometry.
@@ -171,7 +169,7 @@ export function updateMap (shader, data) {
  * @param {object} shader - A-Frame shader instance
  * @param {object} data
  */
-export function updateDistortionMap (longType, shader, data) {
+module.exports.updateDistortionMap = function (longType, shader, data) {
   var shortType = longType;
   if (longType === 'ambientOcclusion') { shortType = 'ao'; }
 
@@ -182,8 +180,8 @@ export function updateDistortionMap (longType, shader, data) {
   info.offset = data[longType + 'TextureOffset'];
   info.repeat = data[longType + 'TextureRepeat'];
   info.wrap = data[longType + 'TextureWrap'];
-  return updateMapMaterialFromData(shortType + 'Map', 'src', shader, info);
-}
+  return module.exports.updateMapMaterialFromData(shortType + 'Map', 'src', shader, info);
+};
 
 // Cache env map results as promises
 var envMapPromises = {};
@@ -194,7 +192,7 @@ var envMapPromises = {};
  * @param {object} shader - A-Frame shader instance
  * @param {object} data
  */
-export function updateEnvMap (shader, data) {
+module.exports.updateEnvMap = function (shader, data) {
   var material = shader.material;
   var el = shader.el;
   var materialName = 'envMap';
@@ -251,7 +249,7 @@ export function updateEnvMap (shader, data) {
     material.needsUpdate = true;
     handleTextureEvents(el, texture);
   }
-}
+};
 
 /**
  * Emit event on entities on texture-related events.
@@ -259,7 +257,7 @@ export function updateEnvMap (shader, data) {
  * @param {Element} el - Entity.
  * @param {object} texture - three.js Texture.
  */
-export function handleTextureEvents (el, texture) {
+function handleTextureEvents (el, texture) {
   if (!texture) { return; }
 
   el.emit('materialtextureloaded', {src: texture.image, texture: texture});
@@ -283,6 +281,7 @@ export function handleTextureEvents (el, texture) {
     texture.image.removeEventListener('ended', emitVideoTextureEndedAll);
   });
 }
+module.exports.handleTextureEvents = handleTextureEvents;
 
 /**
  * Checks if a given texture type is compatible with a given source.
@@ -291,23 +290,21 @@ export function handleTextureEvents (el, texture) {
  * @param {THREE.Source} source - The source to check compatibility with
  * @returns {boolean} True if the texture is compatible with the source, false otherwise
  */
-export function isCompatibleTexture (texture, source) {
-  if (texture.source !== source) {
-    return false;
-  }
-
+function isCompatibleTexture (texture, source) {
   if (source.data instanceof HTMLCanvasElement) {
     return texture.isCanvasTexture;
   }
 
   if (source.data instanceof HTMLVideoElement) {
-    return texture.isVideoTexture;
+    // VideoTexture can't have its source changed after initial user
+    return texture.isVideoTexture && texture.source === source;
   }
 
   return texture.isTexture && !texture.isCanvasTexture && !texture.isVideoTexture;
 }
+module.exports.isCompatibleTexture = isCompatibleTexture;
 
-export function createCompatibleTexture (source) {
+function createCompatibleTexture (source) {
   var texture;
 
   if (source.data instanceof HTMLCanvasElement) {
@@ -323,3 +320,4 @@ export function createCompatibleTexture (source) {
   texture.needsUpdate = true;
   return texture;
 }
+module.exports.createCompatibleTexture = createCompatibleTexture;

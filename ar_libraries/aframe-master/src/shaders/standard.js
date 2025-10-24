@@ -1,11 +1,11 @@
-import * as THREE from 'three';
-import { registerShader } from '../core/shader.js';
-import * as utils from '../utils/index.js';
+var registerShader = require('../core/shader').registerShader;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
 
 /**
  * Standard (physically-based) shader using THREE.MeshStandardMaterial.
  */
-export var Shader = registerShader('standard', {
+module.exports.Shader = registerShader('standard', {
   schema: {
     ambientOcclusionMap: {type: 'map'},
     ambientOcclusionMapIntensity: {default: 1},
@@ -26,6 +26,7 @@ export var Shader = registerShader('standard', {
     envMap: {default: ''},
 
     fog: {default: true},
+    height: {default: 256},
 
     metalness: {default: 0.0, min: 0.0, max: 1.0},
     metalnessMap: {type: 'map'},
@@ -47,6 +48,7 @@ export var Shader = registerShader('standard', {
 
     sphericalEnvMap: {type: 'map'},
     src: {type: 'map'},
+    width: {default: 512},
     wireframe: {default: false},
     wireframeLinewidth: {default: 2}
   },
@@ -76,6 +78,7 @@ export var Shader = registerShader('standard', {
    * Updating existing material.
    *
    * @param {object} data - Material component data.
+   * @returns {object} Material.
    */
   updateMaterial: function (data) {
     var key;

@@ -114,7 +114,7 @@ Accessed as `el.components.animation.<MEMBER>`.
 
 ### Controlling Animations using setAttribute
 
-Like any A-Frame component, the animation component can be configured from JavaScript by calling [setAttribute()](../introduction/javascript-events-dom-apis.md#updating-a-component-with-setattribute) on an element.
+Like any A-Frame component, the animation component can be configured from JavaScript by calling [setAttribute()]( https://aframe.io/docs/1.6.0/introduction/javascript-events-dom-apis.html#updating-a-component-with-setattribute) on an element.
 
 By default, the animation will begin playing immediately (autoplay is true by default).
 
@@ -140,8 +140,7 @@ We can use the `startEvents` property to animate upon events:
   geometry="primitive: box"
   material="color: red"
   animation__mouseenter="property: components.material.material.color; type: color; to: blue; startEvents: mouseenter; dur: 500";
-  animation__mouseleave="property: components.material.material.color; type: color; to: red; startEvents: mouseleave; dur: 500";
-  animation__customevent="property: components.material.material.color; type: color; from: red; to: blue; startEvents: triggeranimation; dur: 500";>
+  animation__mouseleave="property: components.material.material.color; type: color; to: red; startEvents: mouseleave; dur: 500";>
 </a-entity>
 ```
 
@@ -149,13 +148,13 @@ We can use the `startEvents` property to animate upon events:
 
 [Remix the Animating on Events Glitch][eventsglitch].
 
-To start an animation by explicitly [emitting a custom event](../introduction/javascript-events-dom-apis.md#emitting-an-event-with-emit), you can do the following:
+To start an animation by explicitly emitting an event, you can do the following:
 
 ```
-el.emit(`triggeranimation`, null, false);
+el.emit(`startanim001`, null, false);
 ```
 
-The [third parameter of emit](../core/entity.md#emit-name-detail-bubbles) set to "false" parameter ensures the event won't bubble up to parents, so that you can target the animation at just one particular element.
+The [third parameter of emit](https://aframe.io/docs/1.6.0/core/entity.html#emit-name-detail-bubbles) set to "false" parameter ensures the event won't bubble up to parents, so that you can target the animation at just one particular element.
 
 This assumes that an animation has already been configured to respond to that custom start event, for example like this:
 

@@ -1,5 +1,6 @@
-/* global assert, setup, suite, test, CustomEvent, MouseEvent, TouchEvent */
-import { entityFactory, once } from '../helpers.js';
+/* global assert, process, setup, suite, test, CustomEvent, MouseEvent, TouchEvent */
+var entityFactory = require('../helpers').entityFactory;
+var once = require('../helpers').once;
 const touchEventSupported = (typeof TouchEvent !== 'undefined');
 
 suite('cursor', function () {
@@ -44,7 +45,7 @@ suite('cursor', function () {
       assert.ok(el.is('cursor-hovering'));
       assert.ok(intersectedEl.is('cursor-hovered'));
       el.removeAttribute('cursor');
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.notOk(el.is('cursor-hovering'));
         assert.notOk(intersectedEl.is('cursor-hovered'));
         done();
@@ -59,7 +60,7 @@ suite('cursor', function () {
       });
       assert.ok(el.is('cursor-fusing'));
       el.removeAttribute('cursor');
-      setTimeout(function () {
+      process.nextTick(function () {
         assert.notOk(el.is('cursor-fusing'));
         done();
       });
@@ -67,7 +68,7 @@ suite('cursor', function () {
 
     test('removes intersection listener', function (done) {
       el.removeAttribute('cursor');
-      setTimeout(function () {
+      process.nextTick(function () {
         el.emit('raycaster-intersection', {
           intersections: [intersection],
           els: [intersectedEl]
@@ -262,7 +263,7 @@ suite('cursor', function () {
           els: [furtherIntersectedEl]
         });
 
-        setTimeout(function () {
+        process.nextTick(function () {
           assert.equal(el.components.cursor.intersectedEl, nearerIntersectedEl);
           done();
         });
@@ -405,7 +406,7 @@ suite('cursor', function () {
       event.clientY = 5;
       el.setAttribute('cursor', 'rayOrigin', 'mouse');
       el.sceneEl.canvas.dispatchEvent(event);
-      setTimeout(function () {
+      process.nextTick(function () {
         var raycaster = el.getAttribute('raycaster');
         assert.notEqual(raycaster.direction.x, 0);
         done();
@@ -417,7 +418,7 @@ suite('cursor', function () {
       event.touches = {item: function () { return {clientX: 5, clientY: 5}; }};
       el.setAttribute('cursor', 'rayOrigin', 'mouse');
       el.sceneEl.canvas.dispatchEvent(event);
-      setTimeout(function () {
+      process.nextTick(function () {
         var raycaster = el.getAttribute('raycaster');
         assert.notEqual(raycaster.direction.x, 0);
         done();

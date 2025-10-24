@@ -1,6 +1,6 @@
-import { registerComponent as register } from '../../core/component.js';
+var register = require('../../core/component').registerComponent;
 
-export var Component = register('debug', {
+module.exports.Component = register('debug', {
   schema: {default: true},
   sceneOnly: true
 });

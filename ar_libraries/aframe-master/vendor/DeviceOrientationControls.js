@@ -5,7 +5,7 @@
  * W3C Device Orientation control (http://w3c.github.io/deviceorientation/spec-source-orientation.html)
  */
 
-export var DeviceOrientationControls = function ( object ) {
+THREE.DeviceOrientationControls = function ( object ) {
 
   var scope = this;
 

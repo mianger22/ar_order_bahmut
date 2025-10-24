@@ -1,5 +1,5 @@
 /* global assert, suite, test */
-import * as utils from 'utils/index.js';
+var utils = require('index').utils;
 
 var diff = utils.diff;
 var deepEqual = utils.deepEqual;

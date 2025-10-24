@@ -1,5 +1,5 @@
-/* global setup, suite, test, assert, THREE */
-import { entityFactory } from '../helpers.js';
+/* global process, setup, suite, test, assert, THREE */
+var entityFactory = require('../helpers').entityFactory;
 
 suite('shadow system', function () {
   setup(function () {

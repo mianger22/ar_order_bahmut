@@ -1,6 +1,6 @@
-import { registerComponent } from '../../core/component.js';
-import * as constants from '../../constants/index.js';
-import * as utils from '../../utils/index.js';
+var registerComponent = require('../../core/component').registerComponent;
+var constants = require('../../constants/');
+var utils = require('../../utils/');
 
 var ENTER_VR_CLASS = 'a-enter-vr';
 var ENTER_AR_CLASS = 'a-enter-ar';
@@ -13,11 +13,12 @@ var ORIENTATION_MODAL_CLASS = 'a-orientation-modal';
 /**
  * UI for entering VR mode.
  */
-export var Component = registerComponent('xr-mode-ui', {
+module.exports.Component = registerComponent('xr-mode-ui', {
   dependencies: ['canvas'],
 
   schema: {
     enabled: {default: true},
+    cardboardModeEnabled: {default: false},
     enterVRButton: {default: ''},
     enterVREnabled: {default: true},
     enterARButton: {default: ''},
@@ -145,7 +146,7 @@ export var Component = registerComponent('xr-mode-ui', {
     var sceneEl = this.el;
     if (!this.enterVREl) { return; }
     if (sceneEl.is('vr-mode') ||
-       ((sceneEl.isMobile || utils.device.isMobileDeviceRequestingDesktopSite()) && !utils.device.checkVRSupport())) {
+       ((sceneEl.isMobile || utils.device.isMobileDeviceRequestingDesktopSite()) && !this.data.cardboardModeEnabled && !utils.device.checkVRSupport())) {
       this.enterVREl.classList.add(HIDDEN_CLASS);
     } else {
       if (!utils.device.checkVRSupport()) { this.enterVREl.classList.add('fullscreen'); }
@@ -198,7 +199,7 @@ function createEnterVRButton (onClick) {
   vrButton = document.createElement('button');
   vrButton.className = ENTER_VR_BTN_CLASS;
   vrButton.setAttribute('title',
-                        'Enter VR mode with a headset or fullscreen without');
+    'Enter VR mode with a headset or fullscreen without');
   vrButton.setAttribute(constants.AFRAME_INJECTED, '');
   if (utils.device.isMobile()) { applyStickyHoverFix(vrButton); }
   // Insert elements.
@@ -230,7 +231,7 @@ function createEnterARButton (onClick, xrMode) {
   arButton = document.createElement('button');
   arButton.className = ENTER_AR_BTN_CLASS;
   arButton.setAttribute('title',
-                        'Enter AR mode with a headset or handheld device.');
+    'Enter AR mode with a headset or handheld device.');
   arButton.setAttribute(constants.AFRAME_INJECTED, '');
   if (utils.device.isMobile()) { applyStickyHoverFix(arButton); }
   // Insert elements.

@@ -1,6 +1,7 @@
-import * as THREE from 'three';
-import { geometries, geometryNames } from '../core/geometry.js';
-import { registerComponent } from '../core/component.js';
+var geometries = require('../core/geometry').geometries;
+var geometryNames = require('../core/geometry').geometryNames;
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
 
 var dummyGeometry = new THREE.BufferGeometry();
 
@@ -8,7 +9,7 @@ var dummyGeometry = new THREE.BufferGeometry();
  * Geometry component. Combined with material component to make a mesh in 3D object.
  * Extended with registered geometries.
  */
-export var Component = registerComponent('geometry', {
+module.exports.Component = registerComponent('geometry', {
   schema: {
     buffer: {default: true},
     primitive: {default: 'box', oneOf: geometryNames, schemaChange: true},

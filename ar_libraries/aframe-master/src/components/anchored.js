@@ -1,7 +1,6 @@
-/* global XRRigidTransform, localStorage */
-import * as THREE from 'three';
-import { registerComponent } from '../core/component.js';
-import * as utils from '../utils/index.js';
+/* global THREE, XRRigidTransform, localStorage */
+var registerComponent = require('../core/component').registerComponent;
+var utils = require('../utils/');
 var warn = utils.debug('components:anchored:warn');
 
 /**
@@ -10,7 +9,7 @@ var warn = utils.debug('components:anchored:warn');
  * Once anchored the entity remains to a fixed position in real-world space.
  * If the anchor is persistent, the anchor positioned remains across sessions or until the browser data is cleared.
  */
-export var Component = registerComponent('anchored', {
+module.exports.Component = registerComponent('anchored', {
   schema: {
     persistent: {default: false}
   },
@@ -53,9 +52,8 @@ export var Component = registerComponent('anchored', {
     refSpace = xrManager.getReferenceSpace();
 
     pose = frame.getPose(this.anchor.anchorSpace, refSpace);
-    // Apply position and orientation, leave scale as-is (see aframevr/aframe#5630)
-    object3D.position.copy(pose.transform.position);
-    object3D.quaternion.copy(pose.transform.orientation);
+    object3D.matrix.elements = pose.transform.matrix;
+    object3D.matrix.decompose(object3D.position, object3D.rotation, object3D.scale);
   },
 
   createAnchor: async function createAnchor (position, quaternion) {

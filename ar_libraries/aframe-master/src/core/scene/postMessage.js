@@ -1,15 +1,15 @@
-import { isIframed } from '../../utils/index.js';
+var isIframed = require('../../utils/').isIframed;
 
 /**
  * Provides a post message API for scenes contained
  * in an iframe.
  */
-export function initPostMessageAPI (scene) {
+module.exports = function initPostMessageAPI (scene) {
   // Handles fullscreen behavior when inside an iframe.
   if (!isIframed()) { return; }
   // postMessage API handler
   window.addEventListener('message', postMessageAPIHandler.bind(scene));
-}
+};
 
 function postMessageAPIHandler (event) {
   var scene = this;

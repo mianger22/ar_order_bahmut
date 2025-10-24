@@ -1,7 +1,8 @@
-import * as THREE from 'three';
-import { registerSystem } from '../core/system.js';
-import * as utils from '../utils/index.js';
-import { setTextureProperties, createCompatibleTexture } from '../utils/material.js';
+var registerSystem = require('../core/system').registerSystem;
+var THREE = require('../lib/three');
+var utils = require('../utils/');
+var setTextureProperties = require('../utils/material').setTextureProperties;
+var createCompatibleTexture = require('../utils/material').createCompatibleTexture;
 
 var debug = utils.debug;
 var error = debug('components:texture:error');
@@ -15,7 +16,7 @@ var ImageLoader = new THREE.ImageLoader();
  * @member {object} materials - Registered materials.
  * @member {object} sourceCache - Texture source cache for, Image, Video and Canvas sources
  */
-export var System = registerSystem('material', {
+module.exports.System = registerSystem('material', {
   init: function () {
     this.materials = {};
     this.sourceCache = {};
@@ -28,7 +29,7 @@ export var System = registerSystem('material', {
   /**
    * Loads and creates a texture for a given `src`.
    *
-   * @param {string|Element} src - URL or element
+   * @param {string, or element} src - URL or element
    * @param {object} data - Relevant texture properties
    * @param {function} cb - Callback to pass texture to
    */
@@ -43,7 +44,7 @@ export var System = registerSystem('material', {
   /**
    * Determine whether `src` is an image or video. Then try to load the asset, then call back.
    *
-   * @param {string|Element} src - URL or element.
+   * @param {string, or element} src - URL or element.
    * @param {function} cb - Callback to pass texture source to.
    */
   loadTextureSource: function (src, cb) {
@@ -78,7 +79,7 @@ export var System = registerSystem('material', {
   /**
    * Load the six individual sides and construct a cube texture, then call back.
    *
-   * @param {Array<string|Element>} srcs - Array of six texture URLs or elements.
+   * @param {Array} srcs - Array of six texture URLs or elements.
    * @param {function} cb - Callback to pass cube texture to.
    */
   loadCubeMapTexture: function (srcs, cb) {
@@ -89,7 +90,7 @@ export var System = registerSystem('material', {
 
     function loadSide (index) {
       self.loadTextureSource(srcs[index], function (source) {
-        cube.images[index] = source.data;
+        cube.images[index] = source;
         loaded++;
         if (loaded === 6) {
           cube.needsUpdate = true;
@@ -111,7 +112,7 @@ export var System = registerSystem('material', {
   /**
    * High-level function for loading image textures (THREE.Texture).
    *
-   * @param {string|Element} src - Texture source.
+   * @param {Element|string} src - Texture source.
    * @param {function} cb - Callback to pass texture to.
    */
   loadImage: function (src, cb) {
@@ -130,7 +131,7 @@ export var System = registerSystem('material', {
    * Note that creating a video texture is synchronous unlike loading an image texture.
    * Made asynchronous to be consistent with image textures.
    *
-   * @param {string|Element} src - Texture source.
+   * @param {Element|string} src - Texture source.
    * @param {function} cb - Callback to pass texture to.
    */
   loadVideo: function (src, cb) {

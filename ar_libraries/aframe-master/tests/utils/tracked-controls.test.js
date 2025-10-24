@@ -1,5 +1,5 @@
 /* global assert, sinon, suite, test */
-import * as trackedControlsUtils from 'utils/tracked-controls.js';
+var trackedControlsUtils = require('utils/tracked-controls');
 
 suite('onButtonEvent', function () {
   test('reemit button event based on mappings', function () {

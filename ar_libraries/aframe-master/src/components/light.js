@@ -1,18 +1,20 @@
-import * as THREE from 'three';
-import { LightProbeGenerator } from 'three/addons/lights/LightProbeGenerator.js';
-import { diff, debug, srcLoader } from '../utils/index.js';
-import { registerComponent } from '../core/component.js';
-import * as mathUtils from '../utils/math.js';
+var utils = require('../utils');
+var diff = utils.diff;
+var debug = require('../utils/debug');
+var registerComponent = require('../core/component').registerComponent;
+var THREE = require('../lib/three');
+var mathUtils = require('../utils/math');
 
 var degToRad = THREE.MathUtils.degToRad;
 var warn = debug('components:light:warn');
+var CubeLoader = new THREE.CubeTextureLoader();
 
 var probeCache = {};
 
 /**
  * Light component.
  */
-export var Component = registerComponent('light', {
+module.exports.Component = registerComponent('light', {
   schema: {
     angle: {default: 60, if: {type: ['spot']}},
     color: {type: 'color', if: {type: ['ambient', 'directional', 'hemisphere', 'point', 'spot']}},
@@ -20,7 +22,7 @@ export var Component = registerComponent('light', {
     groundColor: {type: 'color', if: {type: ['hemisphere']}},
     decay: {default: 1, if: {type: ['point', 'spot']}},
     distance: {default: 0.0, min: 0, if: {type: ['point', 'spot']}},
-    intensity: {default: 3.14, min: 0, if: {type: ['ambient', 'directional', 'hemisphere', 'point', 'spot', 'probe']}},
+    intensity: {default: 1.0, min: 0, if: {type: ['ambient', 'directional', 'hemisphere', 'point', 'spot', 'probe']}},
     penumbra: {default: 0, min: 0, max: 1, if: {type: ['spot']}},
     type: {
       default: 'directional',
@@ -199,9 +201,6 @@ export var Component = registerComponent('light', {
     if (newLight) {
       if (this.light) {
         el.removeObject3D('light');
-        if (el.getObject3D('cameraHelper')) {
-          el.removeObject3D('cameraHelper');
-        }
       }
 
       this.light = newLight;
@@ -235,20 +234,17 @@ export var Component = registerComponent('light', {
     var data = this.data;
     var light = this.light;
 
-    // Cast shadows if enabled and light type supports shadows.
-    light.castShadow = data.castShadow && light.shadow;
+    light.castShadow = data.castShadow;
 
     // Shadow camera helper.
     var cameraHelper = el.getObject3D('cameraHelper');
-    var shadowCameraVisible = data.shadowCameraVisible && light.shadow;
-    if (shadowCameraVisible && !cameraHelper) {
-      cameraHelper = new THREE.CameraHelper(light.shadow.camera);
-      el.setObject3D('cameraHelper', cameraHelper);
-    } else if (!shadowCameraVisible && cameraHelper) {
+    if (data.shadowCameraVisible && !cameraHelper) {
+      el.setObject3D('cameraHelper', new THREE.CameraHelper(light.shadow.camera));
+    } else if (!data.shadowCameraVisible && cameraHelper) {
       el.removeObject3D('cameraHelper');
     }
 
-    if (!light.castShadow) { return light; }
+    if (!data.castShadow) { return light; }
 
     // Shadow appearance.
     light.shadow.bias = data.shadowBias;
@@ -349,25 +345,24 @@ export var Component = registerComponent('light', {
     if (!data.envMap) {
       // reset parameters if no map
       light.copy(new THREE.LightProbe());
-      return;
     }
 
-    // Populate the cache if not done for this envMap yet
-    var sceneEl = this.el.sceneEl;
-    if (probeCache[data.envMap] === undefined) {
-      probeCache[data.envMap] = new Promise(function (resolve) {
-        srcLoader.validateCubemapSrc(data.envMap, function loadEnvMap (srcs) {
-          sceneEl.systems.material.loadCubeMapTexture(srcs, function (texture) {
-            var tempLightProbe = LightProbeGenerator.fromCubeTexture(texture);
-            resolve(tempLightProbe);
-          });
-        });
+    if (probeCache[data.envMap] instanceof window.Promise) {
+      probeCache[data.envMap].then(function (tempLightProbe) {
+        light.copy(tempLightProbe);
       });
     }
-
-    // Copy over light probe properties
-    probeCache[data.envMap].then(function (tempLightProbe) {
-      light.copy(tempLightProbe);
+    if (probeCache[data.envMap] instanceof THREE.LightProbe) {
+      light.copy(probeCache[data.envMap]);
+    }
+    probeCache[data.envMap] = new window.Promise(function (resolve) {
+      utils.srcLoader.validateCubemapSrc(data.envMap, function loadEnvMap (urls) {
+        CubeLoader.load(urls, function (cube) {
+          var tempLightProbe = THREE.LightProbeGenerator.fromCubeTexture(cube);
+          probeCache[data.envMap] = tempLightProbe;
+          light.copy(tempLightProbe);
+        });
+      });
     });
   },
 

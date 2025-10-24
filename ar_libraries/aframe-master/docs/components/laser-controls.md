@@ -9,13 +9,16 @@ source_code: src/components/laser-controls.js
 examples: []
 ---
 
-The laser-controls component provides a tracked controller with a laser or ray
-cursor shooting out to be used for input and interactions. All headsets ship with some form of 
-tracked input controller that has at least a button to trigger actions. Using laser-controls we can
-get a consistent form of interaction that works across all VR platforms with
-a single line of HTML.
+[dof]: http://www.roadtovr.com/introduction-positional-tracking-degrees-freedom-dof/
 
-[meta-touch-controls]: ./meta-touch-controls.md
+The laser-controls component provides tracked controls with a laser or ray
+cursor shooting out to be used for input and interactions. *DoF* stands for
+[degrees of freedom][dof]. Because they only require rotation and some form of
+input, laser-based interactions scale well across 0 DoF (gaze-based,
+Cardboard), and 6 DoF (Vive, Oculus Touch). If desired, we can get a consistent form of interaction that works
+across all VR platforms with a single line of HTML.
+
+[oculus-touch-controls]: ./oculus-touch-controls.md
 [vive-controls]: ./vive-controls.md
 [windows-motion-controls]: ./windows-motion-controls.md
 
@@ -24,7 +27,7 @@ configures other components, rather than implementing any logic itself. Under
 the hood, laser-controls sets all of the tracked controller components:
 
 - [vive-controls]
-- [meta-touch-controls]
+- [oculus-touch-controls]
 - [windows-motion-controls]
 
 [cursor]: ./cursor.md

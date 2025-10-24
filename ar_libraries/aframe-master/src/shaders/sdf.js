@@ -1,5 +1,5 @@
-import { registerShader } from '../core/shader.js';
-import * as THREE from 'three';
+var registerShader = require('../core/shader').registerShader;
+var THREE = require('../lib/three');
 
 var VERTEX_SHADER = [
   '#include <common>',
@@ -81,7 +81,7 @@ var FRAGMENT_SHADER = [
  * Signed distance field.
  * Used by text component.
  */
-export var Shader = registerShader('sdf', {
+module.exports.Shader = registerShader('sdf', {
   schema: {
     alphaTest: {type: 'number', is: 'uniform', default: 0.5},
     color: {type: 'color', is: 'uniform', default: 'white'},
@@ -94,20 +94,16 @@ export var Shader = registerShader('sdf', {
   fragmentShader: FRAGMENT_SHADER,
 
   init: function () {
-    this.uniforms = this.initUniforms();
-    // When using the WebGPURenderer there is no UniformsLib or UniformsUtils.
-    if (THREE.UniformsUtils) {
-      this.uniforms = THREE.UniformsUtils.merge([
-        THREE.UniformsLib.fog,
-        this.uniforms
-      ]);
-    }
-    this.material = new THREE.ShaderMaterial({
-      uniforms: this.uniforms,
-      vertexShader: this.vertexShader,
-      fragmentShader: this.fragmentShader,
-      fog: true
-    });
-    return this.material;
-  }
+     this.uniforms = THREE.UniformsUtils.merge([
+       THREE.UniformsLib.fog,
+       this.initUniforms()
+     ]);
+     this.material = new THREE.ShaderMaterial({
+       uniforms: this.uniforms,
+       vertexShader: this.vertexShader,
+       fragmentShader: this.fragmentShader,
+       fog: true
+     });
+     return this.material;
+   }
 });

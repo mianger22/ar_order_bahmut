@@ -1,10 +1,12 @@
-/* global XRHand */
-import * as THREE from 'three';
-import { registerComponent } from '../core/component.js';
-import { AEntity } from '../core/a-entity.js';
-import { checkControllerPresentAndSetup } from '../utils/tracked-controls.js';
-import { AFRAME_CDN_ROOT } from '../constants/index.js';
+/* global THREE, XRHand */
+var registerComponent = require('../core/component').registerComponent;
 
+var AEntity = require('../core/a-entity').AEntity;
+
+var trackedControlsUtils = require('../utils/tracked-controls');
+var checkControllerPresentAndSetup = trackedControlsUtils.checkControllerPresentAndSetup;
+
+var AFRAME_CDN_ROOT = require('../constants').AFRAME_CDN_ROOT;
 var LEFT_HAND_MODEL_URL = AFRAME_CDN_ROOT + 'controllers/oculus-hands/v4/left.glb';
 var RIGHT_HAND_MODEL_URL = AFRAME_CDN_ROOT + 'controllers/oculus-hands/v4/right.glb';
 
@@ -41,12 +43,12 @@ var THUMB_TIP_INDEX = 4;
 var INDEX_TIP_INDEX = 9;
 
 var PINCH_START_DISTANCE = 0.015;
-var PINCH_END_DISTANCE = 0.02;
+var PINCH_END_PERCENTAGE = 0.1;
 
 /**
  * Controls for hand tracking
  */
-export var Component = registerComponent('hand-tracking-controls', {
+module.exports.Component = registerComponent('hand-tracking-controls', {
   schema: {
     hand: {default: 'right', oneOf: ['left', 'right']},
     modelStyle: {default: 'mesh', oneOf: ['dots', 'mesh']},
@@ -110,6 +112,7 @@ export var Component = registerComponent('hand-tracking-controls', {
     this.el.sceneEl.addEventListener('exit-vr', this.updateReferenceSpace);
     this.el.addEventListener('child-attached', this.onChildAttached);
 
+    this.el.object3D.visible = false;
     this.wristObject3D.visible = false;
   },
 
@@ -171,7 +174,7 @@ export var Component = registerComponent('hand-tracking-controls', {
     var sceneEl = this.el.sceneEl;
     var controller = this.el.components['tracked-controls'] && this.el.components['tracked-controls'].controller;
     var frame = sceneEl.frame;
-    var trackedControlsWebXR = this.el.components['tracked-controls'];
+    var trackedControlsWebXR = this.el.components['tracked-controls-webxr'];
     var referenceSpace = this.referenceSpace;
     if (!controller || !frame || !referenceSpace || !trackedControlsWebXR) { return; }
     this.hasPoses = false;
@@ -200,9 +203,6 @@ export var Component = registerComponent('hand-tracking-controls', {
   })(),
 
   updateHandModel: function () {
-    this.wristObject3D.visible = true;
-    this.el.object3D.visible = true;
-
     if (this.data.modelStyle === 'dots') {
       this.updateHandDotsModel();
     }
@@ -280,11 +280,12 @@ export var Component = registerComponent('hand-tracking-controls', {
 
       if (distance < PINCH_START_DISTANCE && this.isPinched === false) {
         this.isPinched = true;
+        this.pinchDistance = distance;
         pinchEventDetail.position.copy(indexTipPosition).add(thumbTipPosition).multiplyScalar(0.5);
         this.el.emit('pinchstarted', pinchEventDetail);
       }
 
-      if (distance > PINCH_END_DISTANCE && this.isPinched === true) {
+      if (distance > (this.pinchDistance + this.pinchDistance * PINCH_END_PERCENTAGE) && this.isPinched === true) {
         this.isPinched = false;
         pinchEventDetail.position.copy(indexTipPosition).add(thumbTipPosition).multiplyScalar(0.5);
         this.el.emit('pinchended', pinchEventDetail);
@@ -355,7 +356,7 @@ export var Component = registerComponent('hand-tracking-controls', {
   },
 
   initDotsModel: function () {
-    // Add models just once.
+     // Add models just once.
     if (this.jointEls.length !== 0) { return; }
     for (var i = 0; i < JOINTS.length; ++i) {
       var jointEl = this.jointEl = document.createElement('a-entity');
@@ -388,11 +389,6 @@ export var Component = registerComponent('hand-tracking-controls', {
     this.updateModelMaterial();
     this.setupChildrenEntities();
     this.el.setObject3D('mesh', mesh);
-    this.el.emit('controllermodelready', {
-      name: 'hand-tracking-controls',
-      model: this.data.model,
-      rayOrigin: new THREE.Vector3(0, 0, 0)
-    });
   },
 
   setupChildrenEntities: function () {

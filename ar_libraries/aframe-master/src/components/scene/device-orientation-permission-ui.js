@@ -1,6 +1,7 @@
-/* global DeviceOrientationEvent */
-import { registerComponent } from '../../core/component.js';
-import { AFRAME_INJECTED } from '../../constants/index.js';
+/* global DeviceOrientationEvent, location  */
+var registerComponent = require('../../core/component').registerComponent;
+
+var constants = require('../../constants/');
 
 var MODAL_CLASS = 'a-modal';
 var DIALOG_CLASS = 'a-dialog';
@@ -15,7 +16,7 @@ var DIALOG_OK_BUTTON_CLASS = 'a-dialog-ok-button';
 /**
  * UI for enabling device motion permission
  */
-export var Component = registerComponent('device-orientation-permission-ui', {
+module.exports.Component = registerComponent('device-orientation-permission-ui', {
   schema: {
     enabled: {default: true},
     deviceMotionMessage: {
@@ -102,9 +103,6 @@ export var Component = registerComponent('device-orientation-permission-ui', {
 /**
  * Create a modal dialog that request users permission to access the Device Motion API.
  *
- * @param {string} denyText
- * @param {string} allowText
- * @param {string} dialogText
  * @param {function} onAllowClicked - click event handler
  * @param {function} onDenyClicked - click event handler
  *
@@ -122,13 +120,13 @@ function createPermissionDialog (
   // Buttons
   denyButton = document.createElement('button');
   denyButton.classList.add(DIALOG_BUTTON_CLASS, DIALOG_DENY_BUTTON_CLASS);
-  denyButton.setAttribute(AFRAME_INJECTED, '');
+  denyButton.setAttribute(constants.AFRAME_INJECTED, '');
   denyButton.innerHTML = denyText;
   buttonsContainer.appendChild(denyButton);
 
   acceptButton = document.createElement('button');
   acceptButton.classList.add(DIALOG_BUTTON_CLASS, DIALOG_ALLOW_BUTTON_CLASS);
-  acceptButton.setAttribute(AFRAME_INJECTED, '');
+  acceptButton.setAttribute(constants.AFRAME_INJECTED, '');
   acceptButton.innerHTML = allowText;
   buttonsContainer.appendChild(acceptButton);
 
@@ -156,7 +154,7 @@ function createAlertDialog (closeText, dialogText, onOkClicked) {
   // Buttons
   okButton = document.createElement('button');
   okButton.classList.add(DIALOG_BUTTON_CLASS, DIALOG_OK_BUTTON_CLASS);
-  okButton.setAttribute(AFRAME_INJECTED, '');
+  okButton.setAttribute(constants.AFRAME_INJECTED, '');
   okButton.innerHTML = closeText;
   buttonsContainer.appendChild(okButton);
 
@@ -177,11 +175,11 @@ function createDialog (text, buttonsContainerEl) {
 
   modalContainer = document.createElement('div');
   modalContainer.classList.add(MODAL_CLASS);
-  modalContainer.setAttribute(AFRAME_INJECTED, '');
+  modalContainer.setAttribute(constants.AFRAME_INJECTED, '');
 
   dialog = document.createElement('div');
   dialog.className = DIALOG_CLASS;
-  dialog.setAttribute(AFRAME_INJECTED, '');
+  dialog.setAttribute(constants.AFRAME_INJECTED, '');
   modalContainer.appendChild(dialog);
 
   dialogTextContainer = document.createElement('div');

@@ -1,5 +1,5 @@
-/* global assert, setup, suite, test */
-import { entityFactory } from '../helpers.js';
+/* global assert, process, setup, suite, test */
+var entityFactory = require('../helpers').entityFactory;
 
 suite('scale', function () {
   setup(function (done) {
