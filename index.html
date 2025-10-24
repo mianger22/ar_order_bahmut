@@ -1,114 +1,125 @@
-
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
+  <meta charset="utf-8" />
+  <title>AR модели с вращением</title>
     <script src="ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
     <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>
-  </head>
-  <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-      
-      <!-- Assets -->
-      <a-assets>
-        <!-- Замените эти пути на ваши модели -->
-        <a-asset-item id="model1" src="https://cdn.glitch.global/3f0d6cd7-5d2a-4b3d-91ec-4a43b6d912f7/model1.glb"></a-asset-item>
-        <a-asset-item id="model2" src="https://cdn.glitch.global/3f0d6cd7-5d2a-4b3d-91ec-4a43b6d912f7/model2.glb"></a-asset-item>
-        <a-asset-item id="model3" src="https://cdn.glitch.global/3f0d6cd7-5d2a-4b3d-91ec-4a43b6d912f7/model3.glb"></a-asset-item>
-      </a-assets>
-      
-      <!-- Галерея моделей -->
-      <a-entity id="gallery" position="0 0 -3">
-        <a-entity id="m1" class="clickable" geometry="primitive: box" material="color: blue"
-                  position="1 0 0"
-                  gltf-model="#model1"
-                  scale="0.2 0.2 0.2"></a-entity>
-        <a-entity id="m2" class="clickable" geometry="primitive: box" material="color: green"
-                  position="-1 0 0"
-                  gltf-model="#model2"
-                  scale="0.2 0.2 0.2"></a-entity>
-        <a-entity id="m3" class="clickable" geometry="primitive: box" material="color: red"
-                  position="0 0 -1"
-                  gltf-model="#model3"
-                  scale="0.2 0.2 0.2"></a-entity>
-      </a-entity>
-      
-      <!-- Камера -->
-      <a-entity camera look-controls position="0 1.6 0">
-        <!-- Cursor, использующий raycaster -->
-        <a-entity cursor="fuse: false; rayOrigin: mouse" 
-                  raycaster="objects: .clickable" 
-                  geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" 
-                  material="color: yellow; shader: flat" 
-                  position="0 0 -1"
-                  material="color: yellow"></a-entity>
-      </a-entity>
-      
-      <!-- Скрипт -->
-      <script>
-        let selectedEl = null;
-        let isRotating = false;
-        let lastX = 0;
-        
-        // Обработчик клика для выбора объекта
-        document.querySelector('a-scene').addEventListener('click', (evt) => {
-          const intersectedEls = document.querySelector('a-scene').components['raycaster'].intersectedEls;
-          if (intersectedEls && intersectedEls.length > 0) {
-            const el = intersectedEls[0];
-            if (el.classList.contains('clickable')) {
-              selectedEl = el;
-              alert('Объект выбран. Перетаскивайте мышью или касанием для вращения.');
-            }
-          }
+</head>
+<body style="margin: 0; overflow: hidden;">
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+  <!-- Модели в assets -->
+  <a-assets>
+    <!-- Замените URL на свои модели или оставьте -->
+    <a-asset-item id="model1" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Box/glTFBox.gltf"></a-asset-item>
+    <a-asset-item id="model2" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/CesiumMan/glTF/CesiumMan.gltf"></a-asset-item>
+  </a-assets>
+
+  <!-- Галерея моделей -->
+  <a-entity id="models-container" position="0 0 -3">
+    <a-entity id="model1"
+              class="clickable"
+              gltf-model="#model1"
+              position="0.5 0 0"
+              scale="0.5 0.5 0.5"
+              rotation="0 0 0"></a-entity>
+
+    <a-entity id="model2"
+              class="clickable"
+              gltf-model="#model2"
+              position="-0.5 0 0"
+              scale="0.5 0.5 0.5"
+              rotation="0 0 0"></a-entity>
+  </a-entity>
+
+  <!-- Камера с курсором -->
+  <a-entity camera look-controls>
+    <a-entity cursor="fuse: false; rayOrigin: mouse"
+              raycaster="objects: .clickable"
+              position="0 0 -1"
+              geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+              material="color: yellow; shader: flat">
+    </a-entity>
+  </a-entity>
+
+  <script>
+    let selectedModel = null; // выбранная модель
+    let isRotating = false;
+    let lastX = 0;
+
+    const sceneEl = document.querySelector('a-scene');
+
+    // Обработка выбора модели
+    sceneEl.addEventListener('click', () => {
+      const intersectedEls = sceneEl.querySelectorAll('.clickable');
+      const intersects = sceneEl.components['raycaster'].intersectedEls;
+      if (intersects && intersects.length > 0) {
+        const el = intersects[0];
+        if (el.classList.contains('clickable')) {
+          selectedModel = el;
+          alert('Модель выбрана. Перетаскивайте мышью или касанием для вращения.');
+        }
+      }
+    });
+
+    // Начало вращения по мыши
+    document.addEventListener('mousedown', () => {
+      if (selectedModel) {
+        isRotating = true;
+      }
+    });
+
+    // Конец вращения
+    document.addEventListener('mouseup', () => {
+      isRotating = false;
+    });
+
+    // Вращение мышью
+    document.addEventListener('mousemove', (evt) => {
+      if (isRotating && selectedModel) {
+        const deltaX = evt.movementX;
+        const rotation = selectedModel.getAttribute('rotation');
+        selectedModel.setAttribute('rotation', {
+          x: rotation.x,
+          y: rotation.y + deltaX * 0.5,
+          z: rotation.z
         });
-        
-        // Мышь
-        document.addEventListener('mousedown', (evt) => {
-          if (selectedEl) {
-            isRotating = true;
-            lastX = evt.clientX;
-          }
+      }
+    });
+
+    // Аналогично для касаний
+    document.addEventListener('touchstart', () => {
+      if (selectedModel) {
+        isRotating = true;
+      }
+    });
+    document.addEventListener('touchend', () => {
+      isRotating = false;
+    });
+    document.addEventListener('touchmove', (evt) => {
+      if (isRotating && selectedModel && evt.touches.length === 1) {
+        const deltaX = evt.touches[0].clientX - lastX;
+        lastX = evt.touches[0].clientX;
+        const rotation = selectedModel.getAttribute('rotation');
+        selectedModel.setAttribute('rotation', {
+          x: rotation.x,
+          y: rotation.y + deltaX * 0.5,
+          z: rotation.z
         });
-        document.addEventListener('mouseup', () => {
-          isRotating = false;
-        });
-        document.addEventListener('mousemove', (evt) => {
-          if (isRotating && selectedEl) {
-            const deltaX = evt.clientX - lastX;
-            const rotation = selectedEl.getAttribute('rotation');
-            selectedEl.setAttribute('rotation', {
-              x: rotation.x,
-              y: rotation.y + deltaX * 0.5,
-              z: rotation.z
-            });
-            lastX = evt.clientX;
-          }
-        });
-        
-        // Т_TOUCH (мобильные)
-        document.addEventListener('touchstart', (evt) => {
-          if (selectedEl && evt.touches.length === 1) {
-            isRotating = true;
-            lastX = evt.touches[0].clientX;
-          }
-        });
-        document.addEventListener('touchend', () => {
-          isRotating = false;
-        });
-        document.addEventListener('touchmove', (evt) => {
-          if (isRotating && selectedEl && evt.touches.length === 1) {
-            const deltaX = evt.touches[0].clientX - lastX;
-            const rotation = selectedEl.getAttribute('rotation');
-            selectedEl.setAttribute('rotation', {
-              x: rotation.x,
-              y: rotation.y + deltaX * 0.5,
-              z: rotation.z
-            });
-            lastX = evt.touches[0].clientX;
-          }
-        });
-      </script>
-    </a-scene>
-  </body>
+      }
+    });
+
+    // Обновляем lastX при касании
+    document.addEventListener('touchstart', (evt) => {
+      if (evt.touches.length === 1) {
+        lastX = evt.touches[0].clientX;
+      }
+    });
+  </script>
+</a-scene>
+</body>
 </html>
+
 
 
 
