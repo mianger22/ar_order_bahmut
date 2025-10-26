@@ -1,31 +1,11 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My first AR app</title>
-    <script src="./ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <!-- <script src="./ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script> -->
-</head>
-<body>    
-    <a-scene embedded arjs>
-        <a-entity
-            position="0 0 0"
-            scale="0.5 0.5 0.5"
-            geometry="primitive: sphere" 
-            material="color: yellow" 
-        ></a-entity>
-<!-- обнулил до рабочей версии -->
 <html>
   <head>
     <script src="ar_libraries/aframe-master/dist/aframe-v1.6.0.min.js"></script>
-    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>  </head>
+    <script src="ar_libraries/AR.js-3.4.0/aframe/build/aframe-ar.js"></script>  
+  </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs='sourceType: webcam'>
-
-
-      <!-- Группа моделей 22-->
+      <!-- Группа моделей -->
       <a-entity id="modelGallery" rotation="0 0 0">
         <!-- Модели, расположенные по окружности или в линию -->
         <a-entity gltf-model="#model1" position="0.5 0 -3" scale="0.5 0.5 0.5"></a-entity>
@@ -35,7 +15,7 @@
       </a-entity>
 
       <!-- Камера -->
-      <a-entity camera></a-entity>
+      <!-- <a-entity camera></a-entity> -->
 
       <!-- Пути к моделям, укажите свои файлы -->
       <a-assets>
@@ -96,4 +76,3 @@
     </a-scene>
 </body>
 </html>
-                                            
